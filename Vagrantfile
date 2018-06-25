@@ -15,12 +15,19 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
   config.vm.provider "virtualbox" do |v|
     v.memory = 3072
-    v.name = "meteor_bootcamp"
+    v.name = "eth-bootcamp"
   end
-  config.vm.provision :shell, path: "bootstrap-root.sh"
-  config.vm.provision :shell, path: "bootstrap.sh", privileged: false
-  config.vm.provision :shell, path: "startup.sh", run: 'always', privileged: false
+  config.vm.provision :shell, path: "vagrant-provisioning-privileged.sh"
+  config.vm.provision :shell, path: "vagrant-provisioning.sh", privileged: false
+  config.vm.provision :shell, path: "vagrant-start.sh", run: 'always', privileged: false
+
+  # P2P Port
+  config.vm.network "forwarded_port", guest: 30303 , host: 30303
+  # RPC Port
+  config.vm.network "forwarded_port", guest: 8545, host: 8545
+  # Http Port
   config.vm.network "forwarded_port", guest: 3000, host: 3000
+  # Http Production Port
   config.vm.network "forwarded_port", guest: 9000, host: 9000
 
   # Disable automatic box update checking. If you disable this, then
