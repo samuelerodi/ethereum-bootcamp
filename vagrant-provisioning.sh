@@ -39,12 +39,12 @@ done
 
 # echo "2. Mounting history virtual directory..."
 # sudo mount --bind /home/vagrant/history /vagrant/history/
-
+echo "cd /vagrant" >> /home/vagrant/.profile
 # Installing dependencies
 cd /vagrant
 
 ## Install global packages
-npm install -g ganache-cli
+npm install -g ganache-cli truffle
 
 # npm install --only=production
 

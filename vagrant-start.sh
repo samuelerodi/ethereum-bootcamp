@@ -28,6 +28,6 @@ done
 #   mkdir /home/vagrant/node_modules
 # fi
 
-ganache-cli  -m "replace submit lizard brother mesh olive rubber kite call wonder myself witness"
+# ganache-cli  -m "replace submit lizard brother mesh olive rubber kite call wonder myself witness"  --host=0.0.0.0
 
-echo "Server started. Log in under /vagrant directory and run: node gekko --ui"
+echo "Server started. Log in under /vagrant directory and run"
