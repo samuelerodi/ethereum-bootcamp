@@ -26,9 +26,9 @@ Vagrant.configure("2") do |config|
   # RPC Port
   config.vm.network "forwarded_port", guest: 8545, host: 8545
   # Http Port
-  config.vm.network "forwarded_port", guest: 3000, host: 3000
+  # config.vm.network "forwarded_port", guest: 3000, host: 3000
   # Http Production Port
-  config.vm.network "forwarded_port", guest: 9000, host: 9000
+  # config.vm.network "forwarded_port", guest: 9000, host: 9000
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs

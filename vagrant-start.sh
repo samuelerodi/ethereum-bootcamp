@@ -2,15 +2,20 @@
 cd /vagrant
 
 # Migrate folders to home folder to avoid simlink errors
-declare -a folders=("node_modules" )
+declare -a folders=("node_modules")
 
 ## now loop through the above array
 for i in "${folders[@]}"
 do
   if [ ! -d /home/vagrant/$i ]; then
     # Control will enter here if directory doesn't exists.
-    echo "WARNING: $i not found. Creating directory..."
+    echo "WARNING: /home/vagrant/$i not found. Creating directory..."
     mkdir /home/vagrant/$i
+  fi
+  if [ ! -d /vagrant/$i ]; then
+    # Control will enter here if directory doesn't exists.
+    echo "WARNING: /vagrant/$i not found. Creating directory..."
+    mkdir /vagrant/$i
   fi
   echo "$i. Mounting $i virtual directory..."
   sudo mount --bind /home/vagrant/$i /vagrant/$i/

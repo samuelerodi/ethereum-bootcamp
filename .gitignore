@@ -30,7 +30,8 @@ npm-debug.log
 .env
 
 # truffle build directory
-build/
+build
+build-webpack
 
 # Private blockchain data
 .data

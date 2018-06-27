@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NODE_VERSION=10
+NODE_VERSION=8.11.3
 
 # Installing nvm and nodejs
 echo "Installing nvm..."
@@ -20,7 +20,7 @@ echo "Mounting virtual directories to avoid symlink error to /home/vagrant/"
 
 # Migrate folders to home folder to avoid simlink errors
 # declare -a folders=("node_modules" "data" "tmp")
-declare -a folders=("node_modules" )
+declare -a folders=("node_modules")
 
 ## now loop through the above array
 for i in "${folders[@]}"
@@ -45,7 +45,7 @@ cd /vagrant
 
 ## Install global packages
 npm install -g ganache-cli truffle
-
+npm i
 # npm install --only=production
 
 echo "Provisioning finished"
