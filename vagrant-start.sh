@@ -33,6 +33,7 @@ done
 #   mkdir /home/vagrant/node_modules
 # fi
 
-# ganache-cli  -m "replace submit lizard brother mesh olive rubber kite call wonder myself witness"  --host=0.0.0.0
+echo "Launching ganache-cli in background"
+nohup ganache-cli  -m "replace submit lizard brother mesh olive rubber kite call wonder myself witness"  --host=0.0.0.0 -b 3 &
 
 echo "Server started. Log in under /vagrant directory and run"
