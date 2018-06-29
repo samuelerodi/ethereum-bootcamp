@@ -34,6 +34,6 @@ done
 # fi
 
 echo "Launching ganache-cli in background"
-nohup ganache-cli  -m "replace submit lizard brother mesh olive rubber kite call wonder myself witness"  --host=0.0.0.0 -b 3 &
+nohup ganache-cli -d --host=0.0.0.0 -b 3 >> /vagrant/ganache-cli.log &
 
 echo "Server started. Log in under /vagrant directory and run"

@@ -2,8 +2,31 @@
 
 This box comes with everything you need to start using smart contracts from a react app with Drizzle. It includes `drizzle`, `drizzle-react` and `drizzle-react-components` to give you a complete overview of Drizzle's capabilities.
 
-## Installation
+## Setup
+1. Rename the file secret-template.js into secret.js and populate it using your Infura credentials and Mnemonic phrases.
 
+## Run using Vagrant
+1. Make sure to have virtualbox and vagrant installed
+
+2. Run
+    ```javascript
+    vagrant up
+    ```
+3. SSH to vm with
+    ```javascript
+    vagrant ssh
+    ```
+4. Deploy with
+    ```javascript
+    truffle migrate
+    ```
+5. Launch the frontend
+    ```javascript
+    npm run start
+    ```
+
+
+## Classical installation
 1. Install Truffle and Ganache CLI globally. If you prefer, the graphical version of Ganache works as well!
     ```javascript
     npm install -g truffle
