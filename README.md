@@ -93,3 +93,9 @@ This box comes with everything you need to start using smart contracts from a re
 * __Where can I find more documentation?__
 
     This box is a marriage of [Truffle](http://truffleframework.com/) and a React setup created with [create-react-app](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md). Either one would be a great place to start!
+
+
+## Roadmap
+Add support and integration with:
+- Meteor.js for rapid client and mobile development
+- IPFS for frontend files storage
