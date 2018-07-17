@@ -15,7 +15,6 @@
     "css-loader": "0.26.0",
     "detect-port": "1.0.1",
     "dotenv": "2.0.0",
-    "drizzle": "^1.2.1",
     "drizzle-react": "^1.1.1",
     "drizzle-react-components": "^1.1.0",
     "eslint": "3.8.1",
@@ -52,6 +51,7 @@
     "whatwg-fetch": "1.0.0"
   },
   "dependencies": {
+    "drizzle": "1.1.5",
     "eth-block-tracker-es5": "^2.3.2",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
