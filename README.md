@@ -94,6 +94,7 @@ Additional game features are in roadmap...
 ### Reward withdrawal
 - Add to Logic Contract:
     create function that burns token upon album completion verification apply a commission to owner and refund user.
+    create selfdestruct for upgradability
 
 - Frontend:
     Add logic button to redeem ETH reward
