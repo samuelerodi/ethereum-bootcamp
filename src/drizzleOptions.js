@@ -1,6 +1,6 @@
-import ComplexStorage from './../build/contracts/ComplexStorage.json'
-import SimpleStorage from './../build/contracts/SimpleStorage.json'
-import TutorialToken from './../build/contracts/TutorialToken.json'
+// import ComplexStorage from './../build/contracts/ComplexStorage.json'
+// import SimpleStorage from './../build/contracts/SimpleStorage.json'
+// import TutorialToken from './../build/contracts/TutorialToken.json'
 
 const drizzleOptions = {
   web3: {
@@ -11,12 +11,12 @@ const drizzleOptions = {
     }
   },
   contracts: [
-    ComplexStorage,
-    SimpleStorage,
-    TutorialToken
+    // ComplexStorage,
+    // SimpleStorage,
+    // TutorialToken
   ],
   events: {
-    SimpleStorage: ['StorageSet']
+    // SimpleStorage: ['StorageSet']
   },
   polls: {
     accounts: 1500
