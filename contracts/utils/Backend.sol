@@ -24,6 +24,7 @@ contract Backend is Ownable{
    */
   constructor(address _frontend) public {
     frontend = _frontend;
+    if(_frontend==address(0)) frontend = owner;
   }
 
   /**

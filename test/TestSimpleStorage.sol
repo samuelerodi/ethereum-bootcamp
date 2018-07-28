@@ -7,7 +7,7 @@ import "../contracts/ComplexStorage.sol";
 
 contract TestSimpleStorage {
 
-  function testItStoresAValue() {
+  /* function testItStoresAValue() public {
     SimpleStorage simpleStorage = SimpleStorage(DeployedAddresses.SimpleStorage());
 
     simpleStorage.set(89);
@@ -17,12 +17,12 @@ contract TestSimpleStorage {
     Assert.equal(simpleStorage.storedData(), expected, "It should store the value 89.");
   }
 
-  function testComplexStorage() {
+  function testComplexStorage() public {
     ComplexStorage complexStorage = ComplexStorage(DeployedAddresses.ComplexStorage());
 
     complexStorage.setMemorableString('Yo fuckers!!');
 
     Assert.equal(complexStorage.memorableString(), 'Yo fuckers!!', "It should store the value yo fuckers.");
-  }
+  } */
 
 }
