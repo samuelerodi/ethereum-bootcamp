@@ -227,18 +227,6 @@ library ArrayUtils {
     length = self.length;
   }
 
-  /// @dev Removes element at a given index and shift the rest.
-  /// @param self Storage array containing uint256 type variables
-  /// @param _index The index of the value to remove
-  function remove(uint256[] storage self, uint _index)  returns(uint256) {
-      if (_index >= self.length) return self.length;
-      for (uint i = _index; i<self.length-1; i++){
-          self[i] = self[i+1];
-      }
-      delete self[self.length-1];
-      self.length--;
-      return self.length;
-  }
 
   // internal functions can be used in internal library functions because
   // they will be part of the same code context

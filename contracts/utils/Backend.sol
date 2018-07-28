@@ -9,6 +9,7 @@ import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
  * while guaranteeing the correct write permissions to the storage.
  */
 contract Backend is Ownable{
+/* contract Backend {   */
   address public frontend;
 
 
