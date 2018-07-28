@@ -7,9 +7,10 @@ import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol';
 
 /**
  * @title StickersStorage
- * @dev The StickersStorage contract is a backend ERC721 storage contract which collects all the user albums and implements
- * a minimum set of instruction in order to add and remove stickers from a user's album.
- * All the logic is implemented in its frontend contract for upgradability reasons, so that the storage contract remains
+ * @dev The StickersStorage contract is a backend ERC721 storage contract which collects all the user stickers
+ * implementing a generate and burn function which is triggerable only by frontend.
+ * The logic is implemented in its frontend contract which has been separated from the backend sticker ERC721 contracts
+ * for upgradability reasons. In this way the storage contract remains
  * as flexible as possible for further future updates.
  */
 contract StickersStorage is  HasNoEther, Backend(address(0)), ERC721Token("ZtickerZ", "ZTK")  {
@@ -34,6 +35,7 @@ contract StickersStorage is  HasNoEther, Backend(address(0)), ERC721Token("Ztick
   function generateSticker(address _owner, uint256 _stickerId) public
   onlyFrontend
   returns (uint256) {
+    //It could be used tx.origin instead of _owner for a fully trustless system
     ERC721Token._mint(_owner, _stickerId);
     return ownedTokens[_owner].length;
   }
@@ -48,6 +50,7 @@ contract StickersStorage is  HasNoEther, Backend(address(0)), ERC721Token("Ztick
   function burnSticker(address _owner, uint256 _stickerId) public
   onlyFrontend
   returns (uint256) {
+    //It could be used tx.origin instead of _owner for a fully trustless system
     ERC721Token._burn(_owner, _stickerId);
     return ownedTokens[_owner].length;
   }
