@@ -1,9 +1,9 @@
-var StickersStorage = artifacts.require("./StickersStorage.sol");
+var ZtickyZtorage = artifacts.require("./ZtickyZtorage.sol");
 
-contract('StickersStorage', function(accounts) {
+contract('ZtickyZtorage', function(accounts) {
 
   it("...should change frontend.", function() {
-    return StickersStorage.deployed().then(function(instance) {
+    return ZtickyZtorage.deployed().then(function(instance) {
       s = instance;
       return s.changeFrontend(accounts[1], {from: accounts[0]});
     }).then(function() {
@@ -14,7 +14,7 @@ contract('StickersStorage', function(accounts) {
   });
 
   it("...should add a sticker to the account.", function() {
-    return StickersStorage.deployed().then(function(instance) {
+    return ZtickyZtorage.deployed().then(function(instance) {
       s = instance;
       return s.getStickersOf(accounts[1])
       .then(function(r){
@@ -31,27 +31,33 @@ contract('StickersStorage', function(accounts) {
   });
 
   it("...should burn a sticker.", function() {
-    return StickersStorage.deployed().then(function(instance) {
+    return ZtickyZtorage.deployed().then(function(instance) {
       s = instance;
       return s.generateSticker(accounts[2], 200, {from: accounts[1]})
+      .then(function(r){
+        return s.changeFrontend(accounts[2], {from: accounts[0]});
+      })
       .then(function(r){
         return s.getStickersOf(accounts[2]);
       })
       .then(function(r){
         assert.equal(r.length, 1, 'it should contain one.');
-        return s.burnSticker(accounts[2], 200, {from: accounts[1]})
+        return s.burnSticker( 200, {from: accounts[2]})
       })
       .then(function(r){
         return s.getStickersOf(accounts[2]);
       })
       .then(function(r){
         assert.equal(r.length, 0,'it should have burnt the sticker.');
+      })
+      .then(function(r){
+        return s.changeFrontend(accounts[1], {from: accounts[0]});
       });
     });
   });
 
   it("...should allow to withdraw from frontend.", function() {
-    return StickersStorage.deployed().then(function(instance) {
+    return ZtickyZtorage.deployed().then(function(instance) {
       s = instance;
       return s.generateSticker(accounts[3], 300, {from: accounts[1]})
       .then(function(r){

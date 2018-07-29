@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import './utils/Backend.sol';
-/* import './utils/ArrayUtils.sol'; */
+import './utils/MarketInterface.sol';
 import 'openzeppelin-solidity/contracts/ownership/HasNoEther.sol';
 import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol';
 
@@ -13,7 +13,7 @@ import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol';
  * for upgradability reasons. In this way the storage contract remains
  * as flexible as possible for further future updates.
  */
-contract StickersStorage is  HasNoEther, Backend(address(0)), ERC721Token("ZtickerZ", "ZTK")  {
+contract ZtickyZtorage is  HasNoEther, Backend(address(0)), ERC721Token("ZtickyZtorage", "ZSZ")  {
 
   /**
   * @dev Gets all sIds of the specified address
@@ -21,7 +21,9 @@ contract StickersStorage is  HasNoEther, Backend(address(0)), ERC721Token("Ztick
   * @return uint256[] representing all sticker ids owned by the passed address
   */
   function getStickersOf(address _owner)
-  external view returns (uint256[]) {
+  external
+  view
+  returns (uint256[]) {
     require(_owner != address(0));
     return ownedTokens[_owner];
   }
@@ -32,7 +34,8 @@ contract StickersStorage is  HasNoEther, Backend(address(0)), ERC721Token("Ztick
   * @param _stickerId sticker unique id
   * @return uint256 representing length of owned stickers by the passed address
   */
-  function generateSticker(address _owner, uint256 _stickerId) public
+  function generateSticker(address _owner, uint256 _stickerId)
+  public
   onlyFrontend
   returns (uint256) {
     //It could be used tx.origin instead of _owner for a fully trustless system
@@ -43,35 +46,31 @@ contract StickersStorage is  HasNoEther, Backend(address(0)), ERC721Token("Ztick
 
   /**
   * @dev Burn sticker by calling _burn function. Not currently used but added for flexibility.
-  * @param _owner address for the sticker's owner
   * @param _stickerId sticker unique id
   * @return uint256 representing length of owned stickers by the passed address
   */
-  function burnSticker(address _owner, uint256 _stickerId) public
+  function burnSticker(uint256 _stickerId)
+  public
   onlyFrontend
   returns (uint256) {
-    //It could be used tx.origin instead of _owner for a fully trustless system
-    ERC721Token._burn(_owner, _stickerId);
-    return ownedTokens[_owner].length;
+    //tx.origin because only the legitimate owner should be allowed to burn its own stickers
+    ERC721Token._burn(tx.origin, _stickerId);
+    return ownedTokens[tx.origin].length;
   }
 
   /**
   * @dev Extend approve function and publish onto market to be sold
   * @param _stickerId sticker's unique id
-  * @param price price to be published to market
-  * @return uint256 representing all deed IDs owned by the passed address
+  * @param _price price to be published to market
+  * @return uint256 represent the price
   */
-  function approveAndSell(uint256 _stickerId, uint256 price) public
+  function approveAndSell(uint256 _stickerId, uint256 _price)
+  public
   returns (uint256) {
     ERC721BasicToken.approve(frontend, _stickerId);
-    /* frontend.publishToMarket(_tokenId, price); */
-    return price;
+    MarketInterface(frontend).publishToMarket(_stickerId, msg.sender, _price);
+    return _price;
   }
-
-
-
-
-
 
 
 

@@ -3,9 +3,8 @@ var TutorialToken = artifacts.require("TutorialToken");
 var ComplexStorage = artifacts.require("ComplexStorage");
 //useless
 
-var MarketStorage = artifacts.require("MarketStorage");
-var StickersStorage = artifacts.require("StickersStorage");
-var StickyCoin = artifacts.require("StickyCoin");
+var ZtickyZtorage = artifacts.require("ZtickyZtorage");
+var ZtickyCoinZ = artifacts.require("ZtickyCoinZ");
 var Ztickerz = artifacts.require("Ztickerz");
 
 module.exports = function(deployer) {
@@ -14,8 +13,7 @@ module.exports = function(deployer) {
   deployer.deploy(ComplexStorage);
   //useless
 
-  deployer.deploy(MarketStorage);
-  deployer.deploy(StickersStorage);
-  deployer.deploy(StickyCoin);
+  deployer.deploy(ZtickyZtorage);
+  deployer.deploy(ZtickyCoinZ);
   deployer.deploy(Ztickerz);
 };

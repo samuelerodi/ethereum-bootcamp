@@ -1,10 +1,10 @@
 pragma solidity ^0.4.24;
 
 import './utils/Backend.sol';
+import './utils/MarketInterface.sol';
 import 'openzeppelin-solidity/contracts/ownership/HasNoEther.sol';
 import 'openzeppelin-solidity/contracts/token/ERC20/PausableToken.sol';
 import 'openzeppelin-solidity/contracts/token/ERC20/BurnableToken.sol';
-
 
 /**
  * @title StickyCoin
@@ -14,7 +14,10 @@ import 'openzeppelin-solidity/contracts/token/ERC20/BurnableToken.sol';
  * from the frontend market contract. The separation has been conceived for upgradability reasons
  * while keeping the contracts as flexible as possible.
  */
-contract StickyCoin is BurnableToken, PausableToken, HasNoEther, Backend(address(0)) {
+contract ZtickyCoinZ is BurnableToken, PausableToken, HasNoEther, Backend(address(0)) {
+  string public name = "ZtickyCoinZ";
+  string public symbol = "ZCZ";
+  uint8 public decimals = 18;
 
   event Mint(address indexed to, uint256 amount);
   /**
@@ -28,10 +31,10 @@ contract StickyCoin is BurnableToken, PausableToken, HasNoEther, Backend(address
     uint256 _amount
   )
     onlyFrontend
+    whenNotPaused
     public
     returns (bool)
   {
-    //It could be used tx.origin instead of _to for a fully trustless system
     totalSupply_ = totalSupply_.add(_amount);
     balances[_to] = balances[_to].add(_amount);
     emit Mint(_to, _amount);
@@ -42,29 +45,29 @@ contract StickyCoin is BurnableToken, PausableToken, HasNoEther, Backend(address
 
   /**
    * @dev Burns a specific amount of tokens.
-   * @param _owner The owner of the tokens to be burned.
    * @param _value The amount of token to be burned.
    */
-  function burn(address _owner, uint256 _value) public
+  function burn(uint256 _value) public
   onlyFrontend
-  returns(bool)
+  whenNotPaused
   {
-    //It could be used tx.origin instead of _owner for a fully trustless system
-    BurnableToken._burn(_owner, _value);
-    return true;
+    //tx.origin because only the legitimate owner should be allowed to burn its own coin
+    BurnableToken._burn(tx.origin, _value);
   }
 
   /**
    * @dev This function allows to send directly tokens to market contract in order to trade for specific sticker.
    * @param _stickerId The unique id of the sticker to be bought.
    */
-  function buyAndTransfer(uint256 _stickerId) public
+  function buyAndTransfer(uint256 _stickerId)
+  public
+  whenNotPaused
   returns(bool)
   {
-    /* Item item = frontend.getItem(stickerId); */
-    /* require(item.price<=balances[msg.sender]); */
-    /* PausableToken.transfer(item.seller, item.price); */
-    /* frontend.sellItem(stickerId); */
+    (, uint256 price) = MarketInterface(frontend).getItemOnSale(_stickerId);
+    require(price <= balances[msg.sender]);
+    PausableToken.approve(frontend, price);
+    MarketInterface(frontend).sellItem(_stickerId, msg.sender);
     return true;
   }
 
