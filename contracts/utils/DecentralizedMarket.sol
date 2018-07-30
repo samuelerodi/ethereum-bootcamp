@@ -43,7 +43,7 @@ contract DecentralizedMarket is Frontend, Pausable{
     _;
   }
 
-  /* !!IMPORTANT!! @TODO This function has a vulnerability and should be used to replace
+  /* @notice @TODO !!IMPORTANT!! This function has a vulnerability and should be used to replace
    by a function which ban a user which post to market and revoke allownce after that*/
   modifier hasAllowanceOf(uint256 _stickerId){
     require(this == assetContract.getApproved(_stickerId));
@@ -57,9 +57,9 @@ contract DecentralizedMarket is Frontend, Pausable{
    */
   function _clearOrder(uint256 _stickerId)
   internal
-  isOnSale(_stickerId)
   returns(bool)
   {
+    if (orderBook[_stickerId].seller == address(0)) return true;
     uint256 _idx = orderBook[_stickerId].index;
     delete orderBook[_stickerId];
     //Remove and shift from array
@@ -101,6 +101,7 @@ contract DecentralizedMarket is Frontend, Pausable{
    */
   function _cancelSellOrder(uint256 _stickerId, address _seller)
   internal
+  isOnSale(_stickerId)
   isOwnerOf(_stickerId, _seller)
   hasAllowanceOf(_stickerId)
   returns (bool)
@@ -125,6 +126,7 @@ contract DecentralizedMarket is Frontend, Pausable{
 
   /**
    * @dev It retrieves all items in the order book.
+   * @notice @TODO add indexing by differentiating by album and stickerNumber
    */
   function getOrderBook()
   public
@@ -217,4 +219,17 @@ contract DecentralizedMarket is Frontend, Pausable{
     return true;
   }
 
+  /**
+   * @dev It clear a sell order from order book. Request coming from the asset contract in case of approval rejection.
+   * @param _stickerId The unique id of the sticker to be sold.
+   */
+  function contractClearSellOrder(uint256 _stickerId)
+  public
+  isFrontendConfigured
+  isAssetContract
+  returns(bool)
+  {
+    _clearOrder(_stickerId);
+    return true;
+  }
 }

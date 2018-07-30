@@ -5,4 +5,5 @@ contract MarketInterface {
     function sellItem(uint256 _stickerId, address _buyer) public returns(bool);
     function getItemOnSale(uint256 _stickerId) public view  returns(address, uint256);
     function cancelSellOrder(uint256 _stickerId) public returns(bool);
+    function contractClearSellOrder(uint256 _stickerId) public returns(bool);
 }

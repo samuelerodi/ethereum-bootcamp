@@ -15,7 +15,7 @@ contract SeedGenerator {
   uint256 randNonce;
 
   /**
-   * @dev This function uses a combination of elements in order to generate a deterministical,
+   * @notice This function uses a combination of elements in order to generate a deterministical,
    * everchanging and (nearly) unpredictable number.
    * The algorithm relays on:
    * - address of the user (msg.sender) to make the outcome unique to each user
@@ -28,12 +28,12 @@ contract SeedGenerator {
    */
   function _generateSeed() internal returns(uint256) {
     randNonce++;
-    return uint256(keccak256(now, blockhash(block.number-1), msg.sender, msg.sig, randNonce));
+    return uint256(keccak256(abi.encodePacked(blockhash(block.number-1), msg.sender, msg.sig, now, randNonce)));
   }
 
   /**
    * @dev To be implemented for commit-reveal or oracle-like future implementation.
    * @param _nonce The unique id of the sticker to be removed from orderbook.
    */
-  function _randomNumberCallback(uint256 _nonce) internal returns(bool){return true;}
+  function _randomNumberCallback(uint256 _nonce) internal pure returns(uint256){return _nonce;}
 }

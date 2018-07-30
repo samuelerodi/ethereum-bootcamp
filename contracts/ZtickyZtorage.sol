@@ -72,6 +72,16 @@ contract ZtickyZtorage is  HasNoEther, Backend(address(0)), ERC721Token("ZtickyZ
     return _price;
   }
 
+  /**
+   * @dev Overriding internal function to clear also the market in case of approval rejection.
+   * @param _owner owner of the token
+   * @param _stickerId uint256 ID of the token to be transferred
+   */
+  function clearApproval(address _owner, uint256 _stickerId) internal {
+    ERC721BasicToken.clearApproval(_owner, _stickerId);
+    if(frontend!=address(0)) MarketInterface(frontend).contractClearSellOrder(_stickerId);
+  }
+
 
 
 ///OLD IMPLEMENTATION

@@ -10,7 +10,7 @@ import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 contract TipsManager is Ownable{
   address tipsJar;
 
-  constructor() {
+  constructor() public {
     tipsJar = msg.sender;
   }
 
