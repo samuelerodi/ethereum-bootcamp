@@ -1,7 +1,6 @@
 pragma solidity ^0.4.24;
 
 import './Frontend.sol';
-
 import 'openzeppelin-solidity/contracts/lifecycle/Pausable.sol';
 
 /**
@@ -25,7 +24,8 @@ contract DecentralizedMarket is Frontend, Pausable{
   mapping(uint256 => ItemOnSale) public orderBook;
 
   // Array storing all _stickerId on sale
-  uint256[] public allItemsIndex;
+  mapping (uint256 => uint256) public allOrderBookIndex;
+  uint256 allOrderBookCount;
 
 
   /* MODIFIERS */
@@ -63,12 +63,16 @@ contract DecentralizedMarket is Frontend, Pausable{
     uint256 _idx = orderBook[_stickerId].index;
     delete orderBook[_stickerId];
     //Remove and shift from array
-    for (uint i = _idx; i < allItemsIndex.length - 1; i++) {
-      allItemsIndex[i] = allItemsIndex[i + 1];
-      orderBook[allItemsIndex[i]].index = i;
+    /* for (uint i = _idx; i < allOrderBookIndex.length - 1; i++) {
+      allOrderBookIndex[i] = allOrderBookIndex[i + 1];
+      orderBook[allOrderBookIndex[i]].index = i;
     }
-    delete allItemsIndex[allItemsIndex.length - 1];
-    allItemsIndex.length--;
+    delete allOrderBookIndex[allOrderBookIndex.length - 1];
+    allOrderBookIndex.length--; */
+    allOrderBookIndex[_idx] = allOrderBookIndex[allOrderBookCount];
+    orderBook[allOrderBookIndex[allOrderBookCount]].index = _idx;
+    delete allOrderBookIndex[allOrderBookCount];
+    allOrderBookCount--;
     return true;
   }
 
@@ -83,8 +87,10 @@ contract DecentralizedMarket is Frontend, Pausable{
   isNotOnSale(_stickerId)
   returns(bool)
   {
-    orderBook[_stickerId] = ItemOnSale(_seller, _price, allItemsIndex.length);
-    allItemsIndex.push(_stickerId);
+    orderBook[_stickerId] = ItemOnSale(_seller, _price, allOrderBookCount);
+    /* allOrderBookIndex.push(_stickerId); */
+    allOrderBookIndex[allOrderBookCount]=_stickerId;
+    allOrderBookCount++;
     return true;
   }
 
@@ -118,18 +124,19 @@ contract DecentralizedMarket is Frontend, Pausable{
   }
 
   /**
-   * @dev It retrieve all items in the order book.
+   * @dev It retrieves all items in the order book.
    */
   function getOrderBook()
   public
   view
-  returns(uint256[] _stickers, uint256[] _prices)
+  returns(uint256[] _stickers, uint256[] _prices, address[] _sellers)
   {
-    _stickers = new uint256[](allItemsIndex.length);
-    _prices = new uint256[](allItemsIndex.length);
-    for (uint i = 0; i < allItemsIndex.length; i++) {
-      _stickers[i] = allItemsIndex[i];
-      _prices[i] = orderBook[allItemsIndex[i]].price;
+    _stickers = new uint256[](allOrderBookCount);
+    _prices = new uint256[](allOrderBookCount);
+    for (uint i = 0; i < allOrderBookCount; i++) {
+      _stickers[i] = allOrderBookIndex[i];
+      _prices[i] = orderBook[allOrderBookIndex[i]].price;
+      _sellers[i] = orderBook[allOrderBookIndex[i]].seller;
     }
   }
 
