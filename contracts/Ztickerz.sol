@@ -90,8 +90,6 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
     return albumCount++;
   }
 
- /* @TODO add events in dexMarket */
-
 
   function unwrapStickerPack(uint16 _albumId)
   public
@@ -220,6 +218,7 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
   /* @TODO */
   /* function _computeFinalReward(){} */
   /* function redeemReward(){} */
+  /* events on create and redeem */
 
  /**
   * @notice Fallback function - Called if other functions don't match call or
