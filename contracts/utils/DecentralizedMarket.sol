@@ -17,6 +17,7 @@ contract DecentralizedMarket is Frontend, Pausable{
 		uint256 price;
     uint256 index;
 	}
+  event newItemOnSale(uint256 stickerId, uint256 price);
 
   /* STORAGE */
 
@@ -91,6 +92,7 @@ contract DecentralizedMarket is Frontend, Pausable{
     /* allOrderBookIndex.push(_stickerId); */
     allOrderBookIndex[allOrderBookCount]=_stickerId;
     allOrderBookCount++;
+    emit newItemOnSale(_stickerId, _price);
     return true;
   }
 

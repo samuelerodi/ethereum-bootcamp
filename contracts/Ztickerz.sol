@@ -26,6 +26,7 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
     uint256 ethBalance;
     uint256 mintedCoins;
     uint256 nRewardedUsers;
+    uint256 nStickersInCirculation;
     mapping(uint256=>uint256) stickersMap;
     mapping(uint256=>address) rewardedUsers;
     mapping(address=>uint256) rewardsCount;
@@ -42,6 +43,10 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
   }
 
   /* MODIFIERS */
+  modifier albumExist(uint16 _albumId){
+    require(albums[_albumId].nStickers!=0);
+    _;
+  }
 
   /* INTERNALS */
   function _generateSticker(uint16 _albumId)
@@ -68,8 +73,8 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
   view
   returns(uint16 _stn)
   {
-    /* function for programmatical scarcity */
     assert(albums[_albumId].nStickers!=0);
+    /* @TODO function for programmatical scarcity */
     _stn = uint16(_sId % albums[_albumId].nStickers);
   }
 
@@ -81,21 +86,153 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
     /* Check in case of integer overflow */
     require(uint16(albumCount + 1)>0);
     require((_nS!=0) && (_nSxPack!=0));
-    albums[albumCount] = Album(albumCount, _nSxPack, _nS, _packPrice, 0, 0, 0);
+    albums[albumCount] = Album(albumCount, _nSxPack, _nS, _packPrice, 0, 0, 0, 0);
     return albumCount++;
   }
 
-  /* function unwrapStickerPack(){} */
+ /* @TODO add events in dexMarket */
+
+
+  function unwrapStickerPack(uint16 _albumId)
+  public
+  payable
+  whenNotPaused
+  albumExist(_albumId)
+  returns(uint256[] out)
+  {
+    require(albums[_albumId].packPrice==msg.value);
+    uint256 _coinReward = 0;
+    for(uint i = 0; i < albums[_albumId].nStickersPerPack ; i++){
+      uint256 _stickerId = _generateSticker(_albumId);
+      (uint16 _aId, uint16 _stn, uint256 _sId) = _getStickerInfo(_stickerId);
+      assert(_aId == _albumId);
+      _coinReward.add(computeCoinReward(_albumId, _stn));
+      albums[_albumId].stickersMap[_stn].add(1);
+      albums[_albumId].nStickersInCirculation.add(1);
+      out[i]=_stickerId;
+      assetContract.generateSticker(msg.sender, _stickerId);
+    }
+    albums[_albumId].mintedCoins.add(_coinReward);
+    albums[_albumId].ethBalance.add(msg.value);
+    coinContract.mint(msg.sender,_coinReward);
+  }
   /* function redeemReward(){} */
 
-  /* function _computeCoinGeneration(){} */
+  function computeCoinReward(uint16 _albumId, uint16 _stn)
+  public
+  view
+  returns(uint256 out)
+  {
+    uint256 _supply = albums[_albumId].nStickersInCirculation;              //total Supply
+    uint256 _scarcity = albums[_albumId].stickersMap[_stn]                  //get real distribution
+                        .add(1)                                             //avoid 0
+                        .mul(albums[_albumId].nStickers)                    //normalize by stickers in album
+                        .div(_supply + 1);                                  //Calculate scarsity coefficient
+    out = 1000;                                                        //Statistically stable conversion ratio 1ETH = 1000ZCZ
+    out = out.mul(albums[_albumId].packPrice);                         //Standardize accross albums by its pack price
+    out = out.div(albums[_albumId].nStickersPerPack);                  //Divide equally among stickers in pack
+    out = out.div(_scarcity);                                          //Divide by scarcity. The more is rare, the more coins will get minted
+  }
   /* function _computeFinalReward(){} */
 
-  /* function isAlbumComplete(){} */
-  /* function getStickerDetails(){} */
-  /* function getStickersDetails(){} */
-  /* function stickersInCirculation(){} */
-  /* function getAlbumStats(){} */
+  /* HELPERS */
+  function isAlbumComplete(address _owner, uint16 _albumId)
+  public
+  view
+  albumExist(_albumId)
+  returns(bool)
+  {
+    require(albums[_albumId].nStickers!=0);
+    uint256[] memory _stickers = assetContract.getStickersOf(_owner);
+    uint256[] memory _orderedList = new uint256[](albums[_albumId].nStickers);
+    uint16 counter=0;
+    for (uint256 i = 0; i < _stickers.length ; i++) {
+      uint16 _stn = _getStn(_albumId, _stickers[i]);
+      if(counter==albums[_albumId].nStickers) break;
+      if(_orderedList[_stn]!=0) continue;
+      _orderedList[_stn] = _stickers[i];
+      counter++;
+    }
+    if(counter==albums[_albumId].nStickers) return true;
+    return false;
+  }
+  function getStickerDetails(uint256 _stickerId)
+  public
+  view
+  returns(uint16 _albumId, uint16 _stn, uint256 _sId, address _owner, bool _onSale, uint256 _onSalePrice)
+  {
+    (_albumId, _stn, _sId) = _getStickerInfo(_stickerId);
+    _owner = assetContract.ownerOf(_stickerId);
+    _onSale = orderBook[_stickerId].price!=0 ? true : false;
+    _onSalePrice = orderBook[_stickerId].price;
+  }
+
+  function getStickersDetails(uint256[] _stickerIds)
+  public
+  view
+  returns (uint16[] _albumIds, uint16[] _stns, uint256[] _sIds) {
+    for (uint i = 0; i < _stickerIds.length ; i++) {
+      (uint16 _albumId,uint16 _stn, uint256 _sId) = _getStickerInfo(_stickerIds[i]);
+      _albumIds[i] = _albumId;
+      _stns[i] = _stn;
+      _sIds[i] = _sId;
+    }
+  }
+
+  function stickersInCirculation(uint16 _albumId)
+  public
+  view
+  albumExist(_albumId)
+  returns (uint256)
+  {
+    return albums[_albumId].nStickersInCirculation;
+  }
+
+  function getAlbumStats(uint16 _albumId)
+  public
+  view
+  albumExist(_albumId)
+  returns ( uint16 _nStickers,
+            uint256 _nStickersPerPack,
+            uint256 _packPrice,
+            uint256 _ethBalance,
+            uint256 _mintedCoins,
+            uint256 _nStickersInCirculation,
+            uint256[] _stnDistribution,
+            uint256[] _nextStnGenReward,
+            address[] _rewardedUsers)
+  {
+    _nStickers = albums[_albumId].nStickers;
+    _nStickersPerPack = albums[_albumId].nStickersPerPack;
+    _packPrice = albums[_albumId].packPrice;
+    _ethBalance = albums[_albumId].ethBalance;
+    _mintedCoins = albums[_albumId].mintedCoins;
+    _nStickersInCirculation = albums[_albumId].nStickersInCirculation;
+
+    _stnDistribution = new uint256[](albums[_albumId].nStickers);
+    _nextStnGenReward = new uint256[](albums[_albumId].nStickers);
+    _rewardedUsers = new address[](albums[_albumId].nRewardedUsers);
+    for (uint256 i = 0; i < albums[_albumId].nRewardedUsers ; i++) {
+       _rewardedUsers[i] = albums[_albumId].rewardedUsers[i];
+    }
+    for (uint16 l = 0; l < albums[_albumId].nStickers ; l++) {
+       _stnDistribution[l] = albums[_albumId].stickersMap[l];
+       _nextStnGenReward[l] = computeCoinReward(_albumId, l);
+    }
+    /*_nStickers = albums[_albumId].nStickers;
+    _nStickers = albums[_albumId].nStickers;
+    uint16 albumId;
+    uint16 nStickers;
+    uint256 nStickersPerPack;
+    uint256 packPrice;
+    uint256 ethBalance;
+    uint256 mintedCoins;
+    uint256 nRewardedUsers;
+    uint256 nStickersInCirculation;
+    mapping(uint256=>uint256) stickersMap;
+    mapping(uint256=>address) rewardedUsers; */
+
+  }
 
 
 
