@@ -116,7 +116,7 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
     albums[_albumId].ethBalance.add(msg.value);
     coinContract.mint(msg.sender,_coinReward);
   }
-  /* function redeemReward(){} */
+
 
   function computeCoinReward(uint16 _albumId, uint16 _stn)
   public
@@ -133,7 +133,7 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
     out = out.div(albums[_albumId].nStickersPerPack);                  //Divide equally among stickers in pack
     out = out.div(_scarcity);                                          //Divide by scarcity. The more is rare, the more coins will get minted
   }
-  /* function _computeFinalReward(){} */
+
 
   /* HELPERS */
   function isAlbumComplete(address _owner, uint16 _albumId)
@@ -163,30 +163,26 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
   {
     (_albumId, _stn, _sId) = _getStickerInfo(_stickerId);
     _owner = assetContract.ownerOf(_stickerId);
-    _onSale = orderBook[_stickerId].price!=0 ? true : false;
+    _onSale = orderBook[_stickerId].seller!=address(0) ? true : false;
     _onSalePrice = orderBook[_stickerId].price;
   }
 
   function getStickersDetails(uint256[] _stickerIds)
   public
   view
-  returns (uint16[] _albumIds, uint16[] _stns, uint256[] _sIds) {
+  returns (uint16[] _albumId, uint16[] _stn, uint256[] _sId, address[] _owner, bool[] _onSale, uint256[] _onSalePrice)
+  {
     for (uint i = 0; i < _stickerIds.length ; i++) {
-      (uint16 _albumId,uint16 _stn, uint256 _sId) = _getStickerInfo(_stickerIds[i]);
-      _albumIds[i] = _albumId;
-      _stns[i] = _stn;
-      _sIds[i] = _sId;
+      (uint16 _a, uint16 _b, uint256 _c, address _d, bool _e, uint256 _f) = getStickerDetails(_stickerIds[i]);
+      _albumId[i] = _a;
+      _stn[i] = _b;
+      _sId[i] = _c;
+      _owner[i] = _d;
+      _onSale[i] = _e;
+      _onSalePrice[i] = _f;
     }
   }
 
-  function stickersInCirculation(uint16 _albumId)
-  public
-  view
-  albumExist(_albumId)
-  returns (uint256)
-  {
-    return albums[_albumId].nStickersInCirculation;
-  }
 
   function getAlbumStats(uint16 _albumId)
   public
@@ -219,24 +215,11 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
        _stnDistribution[l] = albums[_albumId].stickersMap[l];
        _nextStnGenReward[l] = computeCoinReward(_albumId, l);
     }
-    /*_nStickers = albums[_albumId].nStickers;
-    _nStickers = albums[_albumId].nStickers;
-    uint16 albumId;
-    uint16 nStickers;
-    uint256 nStickersPerPack;
-    uint256 packPrice;
-    uint256 ethBalance;
-    uint256 mintedCoins;
-    uint256 nRewardedUsers;
-    uint256 nStickersInCirculation;
-    mapping(uint256=>uint256) stickersMap;
-    mapping(uint256=>address) rewardedUsers; */
-
   }
 
-
-
-
+  /* @TODO */
+  /* function _computeFinalReward(){} */
+  /* function redeemReward(){} */
 
  /**
   * @notice Fallback function - Called if other functions don't match call or
