@@ -7,14 +7,14 @@ import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 import 'openzeppelin-solidity/contracts/lifecycle/Destructible.sol';
 
 /**
- * @title Ztickerz
- * @dev The Ztickerz contract is a DecentralizedMarket Frontend contract which implements all the logic for
+ * @title ZtickerZ
+ * @dev The ZtickerZ contract is a DecentralizedMarket Frontend contract which implements all the logic for
  * the album management, stickers generation and user reward upon album completion.
  * For sake of simplicity, the sticker generation is handled using the SeedGenerator contract which is currently vulnerable
  * to miner manipulation. This implementation is tollerated as long as the sticker pack value doesn't exceed the mining reward.
  * However, this functionality will be upgraded in the future using a commit-reveal approach for a complete trustless random seed generation.
  */
-contract Ztickerz is Destructible, DecentralizedMarket, SeedGenerator, TipsManager {
+contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManager {
 
   using SafeMath for uint256;
   uint16 albumCount;

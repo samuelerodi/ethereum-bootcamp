@@ -5,15 +5,26 @@ var ComplexStorage = artifacts.require("ComplexStorage");
 
 var ZtickyZtorage = artifacts.require("ZtickyZtorage");
 var ZtickyCoinZ = artifacts.require("ZtickyCoinZ");
-var Ztickerz = artifacts.require("Ztickerz");
+var ZtickerZ = artifacts.require("ZtickerZ");
 
 module.exports = function(deployer) {
   // deployer.deploy(SimpleStorage);
   // deployer.deploy(TutorialToken);
   // deployer.deploy(ComplexStorage);
   //useless
-
-  deployer.deploy(ZtickyZtorage);
-  deployer.deploy(ZtickyCoinZ);
-  deployer.deploy(Ztickerz, 0, 0);
+  var coinContract, assetContract, ztickerzContract;
+  deployer.deploy(ZtickyZtorage)
+  .then(function(instance) {
+    assetContract = instance;
+    return deployer.deploy(ZtickyCoinZ);
+  })
+  .then(function(instance) {
+    coinContract=instance;
+    return deployer.deploy(ZtickerZ, ZtickyZtorage.address, ZtickyCoinZ.address);
+  })
+  .then(function(instance) {
+    ztickerzContract = instance;
+    assetContract.changeFrontend(ZtickerZ.address);
+    coinContract.changeFrontend(ZtickerZ.address);
+  });
 };

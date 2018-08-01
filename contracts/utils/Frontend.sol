@@ -12,8 +12,8 @@ import '../ZtickyZtorage.sol';
  * while guaranteeing the correct write permissions to the storage.
  */
 contract Frontend is Ownable{
-  address coinContractAddress = address(0);
-  address assetContractAddress = address(0);
+  address public coinContractAddress = address(0);
+  address public assetContractAddress = address(0);
   ZtickyCoinZ coinContract = ZtickyCoinZ(coinContractAddress);
   ZtickyZtorage assetContract = ZtickyZtorage(assetContractAddress);
 
@@ -39,7 +39,8 @@ contract Frontend is Ownable{
   returns(bool)
   {
     require(_coinContractAddress!=address(0));
-    coinContract =ZtickyCoinZ(_coinContractAddress);
+    coinContractAddress = _coinContractAddress;
+    coinContract =ZtickyCoinZ(coinContractAddress);
     return true;
   }
 
@@ -49,7 +50,8 @@ contract Frontend is Ownable{
   returns(bool)
   {
     require(_assetContractAddress!=address(0));
-    assetContract = ZtickyZtorage(_assetContractAddress);
+    assetContractAddress = _assetContractAddress;
+    assetContract = ZtickyZtorage(assetContractAddress);
     return true;
   }
 }
