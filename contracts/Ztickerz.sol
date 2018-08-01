@@ -4,6 +4,7 @@ import './utils/DecentralizedMarket.sol';
 import './utils/SeedGenerator.sol';
 import './utils/TipsManager.sol';
 import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
+import 'openzeppelin-solidity/contracts/lifecycle/Destructible.sol';
 
 /**
  * @title Ztickerz
@@ -13,24 +14,27 @@ import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
  * to miner manipulation. This implementation is tollerated as long as the sticker pack value doesn't exceed the mining reward.
  * However, this functionality will be upgraded in the future using a commit-reveal approach for a complete trustless random seed generation.
  */
-contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
+contract Ztickerz is Destructible, DecentralizedMarket, SeedGenerator, TipsManager {
 
   using SafeMath for uint256;
   uint16 albumCount;
+  uint256 totalEthReceived;
+  uint256 ethToZCZConversion = 1000;
 
   struct Album {
     uint16 albumId;
     uint16 nStickers;
     uint256 nStickersPerPack;
     uint256 packPrice;
-    uint256 ethBalance;
+    uint256 ethReceived;
     uint256 mintedCoins;
-    uint256 nRewardedUsers;
+    uint256 burntCoins;
     uint256 nStickersInCirculation;
+    uint256 nRewardedUsers;
     mapping(uint256=>uint256) stickersMap;
     mapping(uint256=>address) rewardedUsers;
-    mapping(address=>uint256) rewardsCount;
-    mapping(address=>uint256) burntCoin;
+    mapping(address=>uint256) rewardedEth;
+    mapping(address=>uint256) rewardedCoinBurnt;
   }
 
   mapping (uint16 => Album) albums;
@@ -68,75 +72,60 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
     _stn = _getStn(_albumId, _sId);
   }
 
-  function _getStn(uint16 _albumId, uint256 _sId)
+  function _getStn(uint16 _albumId, uint256 _stickerId)
   internal
   view
   returns(uint16 _stn)
   {
     assert(albums[_albumId].nStickers!=0);
-    /* @TODO function for programmatical scarcity */
-    _stn = uint16(_sId % albums[_albumId].nStickers);
-  }
+    bytes32 _sId = bytes32(_stickerId<<16);
+    /* Function for programmatical scarcity */
+    //General formula is: _stn = a + b * c
+    //where a = substring(_stickerId, 0) % N
+    //where b = substring(_stickerId, 1) % (N/5)
+    //where c = substring(_stickerId, 2) % 5
 
-  function createAlbum(uint16 _nS, uint16 _nSxPack, uint256 _packPrice)
-  public
-  onlyOwner
-  returns(uint16)
-  {
-    /* Check in case of integer overflow */
-    require(uint16(albumCount + 1)>0);
-    require((_nS!=0) && (_nSxPack!=0));
-    albums[albumCount] = Album(albumCount, _nSxPack, _nS, _packPrice, 0, 0, 0, 0);
-    return albumCount++;
-  }
+    uint16 _n = albums[_albumId].nStickers;
+    uint16 _l = 5;          //This is the only hardcoded params and it works gives pretty good scarcity using a human range of 10-1000 stickers per album
+    uint16 _m = _n / _l;
 
+    uint256 _a = uint256(bytes10(_sId << 160)) % _n;
+    uint256 _b = uint256(bytes10(_sId << 80)) % _m;
+    uint256 _c = uint256(bytes10(_sId)) % _l;
+    uint256 _o = _a + _b * _c;
 
-  function unwrapStickerPack(uint16 _albumId)
-  public
-  payable
-  whenNotPaused
-  albumExist(_albumId)
-  returns(uint256[] out)
-  {
-    require(albums[_albumId].packPrice==msg.value);
-    uint256 _coinReward = 0;
-    for(uint i = 0; i < albums[_albumId].nStickersPerPack ; i++){
-      uint256 _stickerId = _generateSticker(_albumId);
-      (uint16 _aId, uint16 _stn, uint256 _sId) = _getStickerInfo(_stickerId);
-      assert(_aId == _albumId);
-      _coinReward.add(computeCoinReward(_albumId, _stn));
-      albums[_albumId].stickersMap[_stn].add(1);
-      albums[_albumId].nStickersInCirculation.add(1);
-      out[i]=_stickerId;
-      assetContract.generateSticker(msg.sender, _stickerId);
-    }
-    albums[_albumId].mintedCoins.add(_coinReward);
-    albums[_albumId].ethBalance.add(msg.value);
-    coinContract.mint(msg.sender,_coinReward);
+    //Residuals are used to rebalance in case _stn >= N
+    int256 _rs = int256(_o) - int256(_n);
+    if (_rs>=0) _o = _n - 1 - uint256(_rs % _n);
+    _stn = uint16(_o);
   }
 
 
+
+
+  //PUBLIC VIEW FUNCTIONS
   function computeCoinReward(uint16 _albumId, uint16 _stn)
   public
   view
   returns(uint256 out)
   {
     uint256 _supply = albums[_albumId].nStickersInCirculation;              //total Supply
-    uint256 _scarcity = albums[_albumId].stickersMap[_stn]                  //get real distribution
-                        .add(1)                                             //avoid 0
+    uint256 _scarcity = albums[_albumId].stickersMap[_stn]                  //get real distribution                                                                   //avoid 0
                         .mul(albums[_albumId].nStickers)                    //normalize by stickers in album
+                        .mul(1000)                                          //Damned unsupported floating operation
+                        .add(1)                                             //avoid zeroes
                         .div(_supply + 1);                                  //Calculate scarsity coefficient
-    out = 1000;                                                        //Statistically stable conversion ratio 1ETH = 1000ZCZ
+    out = ethToZCZConversion.mul(1000);                                               //Statistically stable conversion ratio 1ETH = 1000ZCZ or 1wei=1 000 000 000 000 ZCZ
     out = out.mul(albums[_albumId].packPrice);                         //Standardize accross albums by its pack price
     out = out.div(albums[_albumId].nStickersPerPack);                  //Divide equally among stickers in pack
-    out = out.div(_scarcity);                                          //Divide by scarcity. The more is rare, the more coins will get minted
+    out = out.div(_scarcity);                                //Divide by scarcity. The more is rare, the more coins will get minted
   }
 
 
-  /* HELPERS */
   function isAlbumComplete(address _owner, uint16 _albumId)
   public
   view
+  isFrontendConfigured
   albumExist(_albumId)
   returns(bool)
   {
@@ -154,9 +143,11 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
     if(counter==albums[_albumId].nStickers) return true;
     return false;
   }
+
   function getStickerDetails(uint256 _stickerId)
   public
   view
+  isFrontendConfigured
   returns(uint16 _albumId, uint16 _stn, uint256 _sId, address _owner, bool _onSale, uint256 _onSalePrice)
   {
     (_albumId, _stn, _sId) = _getStickerInfo(_stickerId);
@@ -189,8 +180,9 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
   returns ( uint16 _nStickers,
             uint256 _nStickersPerPack,
             uint256 _packPrice,
-            uint256 _ethBalance,
+            uint256 _ethReceived,
             uint256 _mintedCoins,
+            uint256 _burntCoins,
             uint256 _nStickersInCirculation,
             uint256[] _stnDistribution,
             uint256[] _nextStnGenReward,
@@ -199,8 +191,9 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
     _nStickers = albums[_albumId].nStickers;
     _nStickersPerPack = albums[_albumId].nStickersPerPack;
     _packPrice = albums[_albumId].packPrice;
-    _ethBalance = albums[_albumId].ethBalance;
+    _ethReceived = albums[_albumId].ethReceived;
     _mintedCoins = albums[_albumId].mintedCoins;
+    _burntCoins = albums[_albumId].burntCoins;
     _nStickersInCirculation = albums[_albumId].nStickersInCirculation;
 
     _stnDistribution = new uint256[](albums[_albumId].nStickers);
@@ -215,10 +208,111 @@ contract Ztickerz is DecentralizedMarket, SeedGenerator, TipsManager {
     }
   }
 
-  /* @TODO */
-  /* function _computeFinalReward(){} */
-  /* function redeemReward(){} */
-  /* events on create and redeem */
+  function computeAlbumReward(uint16 _albumId, uint256 _coinToBurn)
+  public
+  view
+  albumExist(_albumId)
+  returns(uint256 _eth, uint256 _tips)
+  {
+    ///AVOID STACK TOO DEEP
+    Album storage _a = albums[_albumId];
+    uint256 _supply = coinContract.totalSupply();
+    require(_a.mintedCoins.sub(_a.burntCoins)>=_coinToBurn);
+    require(_coinToBurn>0);
+    //cRatio
+    uint256 _cRatio = _coinToBurn.mul(1000);                                    //0 >= coin ratio on album <= 1000
+            _cRatio = _cRatio.div(_a.mintedCoins);
+    //eRatio
+    uint256 _eRatio = _a.ethReceived;                                           //0 >= eth ratio on album <= 1000
+            _eRatio = _eRatio.mul(1000);
+            _eRatio = _eRatio.div(totalEthReceived);
+    //vrRatio
+    uint256 _vrRatio = _coinToBurn.mul(2000);                                   //500 >= velocity reward ratio of album <= 2500
+            _vrRatio = _vrRatio.div(_coinToBurn + _a.burntCoins);
+            _vrRatio = _vrRatio.add(500);
+    //srRatio
+    uint256 _srRatio = _coinToBurn.mul(3000);                                   //500 >= global supply reward ratio <= 3500
+            _srRatio = _srRatio.div(_supply);
+            _srRatio = _srRatio.add(500);
+    //total
+    uint256 _total = address(this).balance
+                              .mul(_eRatio)
+                              .mul(_cRatio)
+                              .mul(_vrRatio)
+                              .mul(_srRatio)
+                              .div(1000000000000);
+    if(_total>address(this).balance) _total = address(this).balance;
+    _eth  = _total.mul(95).div(100);
+    _tips = _total.mul(5).div(100);                //tips for developers
+  }
+
+
+  //Public write functions
+  function createAlbum(uint16 _nS, uint16 _nSxPack, uint256 _packPrice) //packPrice in wei
+  public
+  onlyOwner
+  returns(uint16)
+  {
+    /* Check in case of integer overflow */
+    require(uint16(albumCount + 1)>0);
+    require((_nS!=0) && (_nSxPack!=0));
+    albums[albumCount] = Album(albumCount, _nSxPack, _nS, _packPrice, 0, 0, 0, 0, 0);
+    return albumCount++;
+  }
+
+  function unwrapStickerPack(uint16 _albumId)
+  public
+  payable
+  whenNotPaused
+  isFrontendConfigured
+  albumExist(_albumId)
+  returns(uint256[] out)
+  {
+    require(albums[_albumId].packPrice==msg.value);
+    uint256 _coinReward = 0;
+    for(uint i = 0; i < albums[_albumId].nStickersPerPack ; i++){
+      uint256 _stickerId = _generateSticker(_albumId);
+      (uint16 _aId, uint16 _stn, uint256 _sId) = _getStickerInfo(_stickerId);
+      assert(_aId == _albumId);
+      _coinReward.add(computeCoinReward(_albumId, _stn));
+      albums[_albumId].stickersMap[_stn]++;
+      albums[_albumId].nStickersInCirculation++;
+      out[i]=_stickerId;
+      assetContract.generateSticker(msg.sender, _stickerId);
+    }
+    albums[_albumId].mintedCoins+=_coinReward;
+    albums[_albumId].ethReceived+=msg.value;
+    totalEthReceived+=msg.value;
+    coinContract.mint(msg.sender,_coinReward);
+  }
+
+  function redeemReward(uint16 _albumId, uint256 _coinToBurn)
+  public
+  whenNotPaused
+  isFrontendConfigured
+  albumExist(_albumId)
+  returns(bool)
+  {
+    //Verify completion
+    require(isAlbumComplete(msg.sender,_albumId));
+    //Compute reward
+    (uint256 _ethReward, uint256 _tips) = computeAlbumReward(_albumId, _coinToBurn);
+    //Adjust stats
+    albums[_albumId].burntCoins.add(_coinToBurn);
+    if(albums[_albumId].rewardedCoinBurnt[msg.sender]==0) {
+      albums[_albumId].rewardedUsers[albums[_albumId].nRewardedUsers] = msg.sender;
+      albums[_albumId].nRewardedUsers++;
+    }
+    albums[_albumId].rewardedEth[msg.sender] += _ethReward.add(_tips);
+    albums[_albumId].rewardedCoinBurnt[msg.sender] += _coinToBurn;
+    //Finalize transaction
+    coinContract.burn(_coinToBurn);
+    _sendTip(_tips);
+    msg.sender.transfer(_ethReward);
+    return true;
+  }
+
+
 
  /**
   * @notice Fallback function - Called if other functions don't match call or
