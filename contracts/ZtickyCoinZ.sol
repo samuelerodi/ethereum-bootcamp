@@ -65,7 +65,7 @@ contract ZtickyCoinZ is BurnableToken, PausableToken, HasNoEther, Backend(addres
   returns(bool)
   {
     (, uint256 price) = MarketInterface(frontend).getItemOnSale(_stickerId);
-    require(price <= balances[msg.sender]);
+    require(price <= balances[msg.sender], 'Price should be lower than balance');
     PausableToken.approve(frontend, price);
     MarketInterface(frontend).sellItem(_stickerId, msg.sender);
     return true;

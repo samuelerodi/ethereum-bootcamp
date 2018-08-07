@@ -24,7 +24,7 @@ contract ZtickyZtorage is  HasNoEther, Backend(address(0)), ERC721Token("ZtickyZ
   external
   view
   returns (uint256[]) {
-    require(_owner != address(0));
+    require(_owner != address(0), 'Address should exist');
     return ownedTokens[_owner];
   }
 

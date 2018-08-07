@@ -43,6 +43,7 @@ import 'openzeppelin-solidity/contracts/lifecycle/Destructible.sol';
 contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManager {
   event Log(string _s, uint256 _n);
   event Zticker(address _owner, uint16 indexed _albumId, uint16 indexed _stn, uint256 _stickerId);
+  event AlbumComplete(address indexed _owner, uint256 _burntCoin, uint256 _rewardedEth);
 
 
   using SafeMath for uint256;
@@ -77,7 +78,7 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
 
   /* MODIFIERS */
   modifier albumExist(uint16 _albumId){
-    require(albums[_albumId].nStickers!=0);
+    require(albums[_albumId].nStickers!=0, 'Album should exist');
     _;
   }
 
@@ -116,7 +117,7 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
 
     uint16 _n = albums[_albumId].nStickers;
     uint16 _l = 5;          //This is the only hardcoded params and it works gives pretty good scarcity using a human range of 10-1000 stickers per album
-    uint16 _m = _n / _l;
+    uint16 _m = (_n / _l) + 1;  //Avoid zeroes
 
     uint256 _a = uint256(bytes10(_sId << 160)) % _n;
     uint256 _b = uint256(bytes10(_sId << 80)) % _m;
@@ -156,7 +157,7 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
   albumExist(_albumId)
   returns(bool)
   {
-    require(albums[_albumId].nStickers!=0);
+    require(albums[_albumId].nStickers!=0, 'Should have stickers');
     uint256[] memory _stickers = assetContract.getStickersOf(_owner);
     uint256[] memory _orderedList = new uint256[](albums[_albumId].nStickers);
     uint16 counter=0;
@@ -186,14 +187,14 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
   function getStickersDetails(uint256[] _stickerIds)
   public
   view
-  returns (uint16[], uint16[], uint256[], address[], bool[], uint256[])
+  returns (uint16[] _albumId, uint16[] _stn, uint256[] _sId, address[] _owner, bool[] _onSale, uint256[] _onSalePrice)
   {
-    uint16[] _albumId = new uint16[](_stickerIds.length);
-    uint16[] _stn = new uint16[](_stickerIds.length);
-    uint256[] _sId = new uint256[](_stickerIds.length);
-    address[] _owner = new address[](_stickerIds.length);
-    bool[] _onSale = new bool[](_stickerIds.length);
-    uint256[] _onSalePrice = new uint256[](_stickerIds.length);
+    _albumId = new uint16[](_stickerIds.length);
+    _stn = new uint16[](_stickerIds.length);
+    _sId = new uint256[](_stickerIds.length);
+    _owner = new address[](_stickerIds.length);
+    _onSale = new bool[](_stickerIds.length);
+    _onSalePrice = new uint256[](_stickerIds.length);
     for (uint i = 0; i < _stickerIds.length ; i++) {
       (uint16 _a, uint16 _b, uint256 _c, address _d, bool _e, uint256 _f) = getStickerDetails(_stickerIds[i]);
       _albumId[i] = _a;
@@ -251,8 +252,8 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     ///AVOID STACK TOO DEEP
     Album storage _a = albums[_albumId];
     uint256 _supply = coinContract.totalSupply();
-    require(_a.mintedCoins.sub(_a.burntCoins)>=_coinToBurn);
-    require(_coinToBurn>0);
+    require(_a.mintedCoins.sub(_a.burntCoins)>=_coinToBurn, 'Should not exceed maximum burnable');
+    require(_coinToBurn>0, 'Should burn some coin');
     //cRatio
     uint256 _cRatio = _coinToBurn.mul(1000);                                    //0 >= coin ratio on album <= 1000
             _cRatio = _cRatio.div(_a.mintedCoins);
@@ -288,8 +289,8 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
   returns(uint16)
   {
     /* Check in case of integer overflow */
-    require(uint16(albumCount + 1)>0);
-    require((_nS!=0) && (_nSxPack!=0));
+    require(uint16(albumCount + 1)>0 , 'Album integer overflow');
+    require((_nS!=0) && (_nSxPack!=0), 'Should have sticker number and stickers per pack');
     albums[albumCount] = Album(albumCount, _nS, _nSxPack, _packPrice, 0, 0, 0, 0, 0);
     return albumCount++;
   }
@@ -302,7 +303,7 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
   albumExist(_albumId)
   returns(uint256[])
   {
-    require(albums[_albumId].packPrice==msg.value);
+    require(albums[_albumId].packPrice==msg.value, 'Should pay the cost of a pack');
     uint256[] memory out = new uint256[](albums[_albumId].nStickersPerPack);
     uint256 _coinReward = 0;
     for(uint i = 0; i < albums[_albumId].nStickersPerPack ; i++){
@@ -331,7 +332,7 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
   returns(bool)
   {
     //Verify completion
-    require(isAlbumComplete(msg.sender,_albumId));
+    require(isAlbumComplete(msg.sender,_albumId), 'Should have completed the album');
     //Compute reward
     (uint256 _ethReward, uint256 _tips) = computeAlbumReward(_albumId, _coinToBurn);
     //Adjust stats
@@ -340,8 +341,9 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
       albums[_albumId].rewardedUsers[albums[_albumId].nRewardedUsers] = msg.sender;
       albums[_albumId].nRewardedUsers++;
     }
-    albums[_albumId].rewardedEth[msg.sender] += _ethReward.add(_tips);
+    albums[_albumId].rewardedEth[msg.sender] += (_ethReward + _tips);
     albums[_albumId].rewardedCoinBurnt[msg.sender] += _coinToBurn;
+    emit AlbumComplete(msg.sender, _coinToBurn, (_ethReward + _tips));
     //Finalize transaction
     coinContract.burn(_coinToBurn);
     _sendTip(_tips);
