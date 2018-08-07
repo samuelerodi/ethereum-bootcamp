@@ -26,7 +26,7 @@ contract DecentralizedMarket is Frontend, Pausable{
 
   // Array storing all _stickerId on sale
   mapping (uint256 => uint256) public allOrderBookIndex;
-  uint256 allOrderBookCount;
+  uint256 public allOrderBookCount;
 
 
   /* MODIFIERS */
@@ -137,6 +137,7 @@ contract DecentralizedMarket is Frontend, Pausable{
   {
     _stickers = new uint256[](allOrderBookCount);
     _prices = new uint256[](allOrderBookCount);
+    _sellers = new address[](allOrderBookCount);
     for (uint i = 0; i < allOrderBookCount; i++) {
       _stickers[i] = allOrderBookIndex[i];
       _prices[i] = orderBook[allOrderBookIndex[i]].price;

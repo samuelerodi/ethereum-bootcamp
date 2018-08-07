@@ -6,7 +6,7 @@ var ac,cc,zz;
 const N_STICKERS = 100;
 const N_STICKERS_X_PACK = 5;
 const PACK_PRICE = 0.1;
-contract.skip('ZtickerZ', function(accounts) {
+contract('ZtickerZ', function(accounts) {
   before("...should set the instances.", function(){
     return ZtickyZtorage.deployed()
       .then((r)=> {ac=r; return ZtickyCoinZ.deployed();})

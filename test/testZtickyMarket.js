@@ -44,19 +44,22 @@ contract('ZtickyMarket', function(accounts) {
   it("...should be in the order book.", function() {
     return zz.getOrderBook()
     .then(r=>{
-      _i = r[0].indexOf(_stickerId);
+      _i = r[0].map(e=>e.toNumber()).indexOf(_stickerId.toNumber());
       assert.equal(_i>=0, true, 'it should be in the order book.');
-      _p = r[1][i];
-      _s = r[2][i];
-      assert.equal(_p, web3.toWei(0.1,'ether').toNumber(), 'is at the correct price.');
+      _p = r[1][_i];
+      _s = r[2][_i];
+      assert.equal(_p, web3.toWei(0.1,'ether'), 'is at the correct price.');
       assert.equal(_s, web3.eth.accounts[2], 'is the correct seller.');
     });
   });
   it("...should cancel the order.", function() {
-    return zz. cancelSellOrder(_stickerId)
-    .then(r=> assert.equal(r, true, 'it should have been cancelled.'))
-    .then(r=>ac.getApproved(_stickerId))
-    .then(r=> assert.equal(r, undefined, 'it should not be approved anymore.'))
+    return zz.cancelSellOrder(_stickerId, {from: web3.eth.accounts[2]})
+    .then(r=> ac.getApproved(_stickerId))
+    .then(r=> {
+      var a = new web3.BigNumber(r);
+      var b = new web3.BigNumber(0);
+      assert.equal(a.toNumber(),  b.toNumber(), 'it should not be approved anymore.')
+    })
     .then(r=> zz.getOrderBook())
     .then(r=>{
       _i = r[0].indexOf(_stickerId);
