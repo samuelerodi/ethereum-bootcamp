@@ -28,7 +28,7 @@ const _amount2 = 100;
 // function reclaimEther() external onlyOwner
 // function changeFrontend(address _newFrontend) public onlyOwner
 
-contract('ZtickyCoinZ', function(accounts) {
+contract.skip('ZtickyCoinZ', function(accounts) {
 
   it("...should change frontend.", function() {
     return ZtickyCoinZ.deployed().then(function(instance) {

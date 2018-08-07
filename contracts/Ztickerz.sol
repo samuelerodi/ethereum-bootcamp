@@ -6,6 +6,32 @@ import './utils/TipsManager.sol';
 import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 import 'openzeppelin-solidity/contracts/lifecycle/Destructible.sol';
 
+// ZtickerZ AVAILABLE FUNCTIONS:
+// + GLOBAL
+// - view
+// function computeCoinReward(uint16 _albumId, uint16 _stn) public view returns(uint256 out)
+// function isAlbumComplete(address _owner, uint16 _albumId) public view isFrontendConfigured albumExist(_albumId) returns(bool)
+// function getStickerDetails(uint256 _stickerId) public view isFrontendConfigured returns(uint16 _albumId, uint16 _stn, uint256 _sId, address _owner, bool _onSale, uint256 _onSalePrice)
+// function getAlbumStats(uint16 _albumId) public view albumExist(_albumId) returns ( uint16 _nStickers, uint256 _nStickersPerPack, uint256 _packPrice, uint256 _ethReceived, uint256 _mintedCoins, uint256 _burntCoins, uint256 _nStickersInCirculation, uint256[] _stnDistribution, uint256[] _nextStnGenReward, address[] _rewardedUsers)
+// function computeAlbumReward(uint16 _albumId, uint256 _coinToBurn) public view albumExist(_albumId) returns(uint256 _eth, uint256 _tips)
+// - write
+// function createAlbum(uint16 _nS, uint16 _nSxPack, uint256 _packPrice) public onlyOwner returns(uint16)
+// function unwrapStickerPack(uint16 _albumId) public payable whenNotPaused isFrontendConfigured albumExist(_albumId) returns(uint256[] out)
+// function redeemReward(uint16 _albumId, uint256 _coinToBurn) public whenNotPaused isFrontendConfigured albumExist(_albumId) returns(bool)
+// + MARKET
+// - view
+// function getItemOnSale(uint256 _stickerId) public view isOnSale(_stickerId) returns(address, uint256)
+// function getOrderBook()public view returns(uint256[] _stickers, uint256[] _prices, address[] _sellers)
+// - write
+// function cancelSellOrder(uint256 _stickerId) public whenNotPaused returns(bool)
+// + ADMIN
+// function pause() onlyOwner whenNotPaused public
+// function unpause() onlyOwner whenPaused public
+// function adminCancelSellOrder(uint256 _stickerId, address _seller) public onlyOwner returns(bool)
+// function adminClearSellOrder(uint256 _stickerId) public onlyOwner returns(bool)
+// function changeTipsAddress(address _newTipAddress) public onlyOwner returns(address)
+
+
 /**
  * @title ZtickerZ
  * @dev The ZtickerZ contract is a DecentralizedMarket Frontend contract which implements all the logic for
@@ -15,11 +41,14 @@ import 'openzeppelin-solidity/contracts/lifecycle/Destructible.sol';
  * However, this functionality will be upgraded in the future using a commit-reveal approach for a complete trustless random seed generation.
  */
 contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManager {
+  event Log(string _s, uint256 _n);
+  event Zticker(address _owner, uint16 indexed _albumId, uint16 indexed _stn, uint256 _stickerId);
+
 
   using SafeMath for uint256;
-  uint16 albumCount;
-  uint256 totalEthReceived;
-  uint256 ethToZCZConversion = 1000;
+  uint16 public albumCount;
+  uint256 public totalEthReceived;
+  uint256 public ethToZCZConversion = 1000;
 
   struct Album {
     uint16 albumId;
@@ -37,7 +66,7 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     mapping(address=>uint256) rewardedCoinBurnt;
   }
 
-  mapping (uint16 => Album) albums;
+  mapping (uint16 => Album) public albums;
 
 
 
@@ -100,9 +129,6 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     _stn = uint16(_o);
   }
 
-
-
-
   //PUBLIC VIEW FUNCTIONS
   function computeCoinReward(uint16 _albumId, uint16 _stn)
   public
@@ -110,15 +136,16 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
   returns(uint256 out)
   {
     uint256 _supply = albums[_albumId].nStickersInCirculation;              //total Supply
-    uint256 _scarcity = albums[_albumId].stickersMap[_stn]                  //get real distribution                                                                   //avoid 0
+    uint256 _scarcity = albums[_albumId].stickersMap[_stn]                //get real distribution coefficient. Scarcity = 1000 average. <1000 rare. >1000 common.
                         .mul(albums[_albumId].nStickers)                    //normalize by stickers in album
-                        .mul(1000)                                          //Damned unsupported floating operation
                         .add(1)                                             //avoid zeroes
-                        .div(_supply + 1);                                  //Calculate scarsity coefficient
-    out = ethToZCZConversion.mul(1000);                                               //Statistically stable conversion ratio 1ETH = 1000ZCZ or 1wei=1 000 000 000 000 ZCZ
-    out = out.mul(albums[_albumId].packPrice);                         //Standardize accross albums by its pack price
-    out = out.div(albums[_albumId].nStickersPerPack);                  //Divide equally among stickers in pack
-    out = out.div(_scarcity);                                //Divide by scarcity. The more is rare, the more coins will get minted
+                        .mul(1000)                                          //Damned unsupported floating operation
+                        .div((_supply + 1));                                  //Calculate scarsity coefficient
+    out = albums[_albumId].packPrice;                                       //Standardize accross albums by its pack price
+    out = out.mul(ethToZCZConversion);                                     //Statistically stable conversion ratio 1ETH = 1000ZCZ or 1wei=1 000 000 000 000 000 000 000 ZCZ
+    out = out.mul(1000);                                                   //Floating operation
+    out = out.div(_scarcity);                                            //Divide by _scarcity. The more is rare, the more coins will get minted
+    out = out.div(albums[_albumId].nStickersPerPack);                      //Divide equally among stickers in pack
   }
 
 
@@ -256,7 +283,7 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     /* Check in case of integer overflow */
     require(uint16(albumCount + 1)>0);
     require((_nS!=0) && (_nSxPack!=0));
-    albums[albumCount] = Album(albumCount, _nSxPack, _nS, _packPrice, 0, 0, 0, 0, 0);
+    albums[albumCount] = Album(albumCount, _nS, _nSxPack, _packPrice, 0, 0, 0, 0, 0);
     return albumCount++;
   }
 
@@ -266,24 +293,27 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
   whenNotPaused
   isFrontendConfigured
   albumExist(_albumId)
-  returns(uint256[] out)
+  returns(uint256[])
   {
     require(albums[_albumId].packPrice==msg.value);
+    uint256[] memory out = new uint256[](albums[_albumId].nStickersPerPack);
     uint256 _coinReward = 0;
     for(uint i = 0; i < albums[_albumId].nStickersPerPack ; i++){
       uint256 _stickerId = _generateSticker(_albumId);
-      (uint16 _aId, uint16 _stn, uint256 _sId) = _getStickerInfo(_stickerId);
-      assert(_aId == _albumId);
-      _coinReward.add(computeCoinReward(_albumId, _stn));
+      (uint16 _stn) = _getStn(_albumId, _stickerId);
+      _coinReward += computeCoinReward(_albumId, _stn);
       albums[_albumId].stickersMap[_stn]++;
       albums[_albumId].nStickersInCirculation++;
       out[i]=_stickerId;
       assetContract.generateSticker(msg.sender, _stickerId);
+      emit Zticker(msg.sender, _albumId, _stn, _stickerId);
     }
+    emit Log('Total coin reward: ' , _coinReward);
     albums[_albumId].mintedCoins+=_coinReward;
     albums[_albumId].ethReceived+=msg.value;
     totalEthReceived+=msg.value;
     coinContract.mint(msg.sender,_coinReward);
+    return out;
   }
 
   function redeemReward(uint16 _albumId, uint256 _coinToBurn)
