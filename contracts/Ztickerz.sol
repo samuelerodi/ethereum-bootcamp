@@ -186,8 +186,14 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
   function getStickersDetails(uint256[] _stickerIds)
   public
   view
-  returns (uint16[] _albumId, uint16[] _stn, uint256[] _sId, address[] _owner, bool[] _onSale, uint256[] _onSalePrice)
+  returns (uint16[], uint16[], uint256[], address[], bool[], uint256[])
   {
+    uint16[] _albumId = new uint16[](_stickerIds.length);
+    uint16[] _stn = new uint16[](_stickerIds.length);
+    uint256[] _sId = new uint256[](_stickerIds.length);
+    address[] _owner = new address[](_stickerIds.length);
+    bool[] _onSale = new bool[](_stickerIds.length);
+    uint256[] _onSalePrice = new uint256[](_stickerIds.length);
     for (uint i = 0; i < _stickerIds.length ; i++) {
       (uint16 _a, uint16 _b, uint256 _c, address _d, bool _e, uint256 _f) = getStickerDetails(_stickerIds[i]);
       _albumId[i] = _a;
@@ -197,6 +203,7 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
       _onSale[i] = _e;
       _onSalePrice[i] = _f;
     }
+    return (_albumId, _stn, _sId, _owner, _onSale, _onSalePrice);
   }
 
 
