@@ -44,8 +44,6 @@ contract DecentralizedMarket is Frontend, Pausable{
     _;
   }
 
-  /* @notice @TODO !!IMPORTANT!! This function has a vulnerability and should be used to replace
-   by a function which ban a user which post to market and revoke allownce after that*/
   modifier hasAllowanceOf(uint256 _stickerId){
     require(this == assetContract.getApproved(_stickerId), 'Should have allowance');
     _;

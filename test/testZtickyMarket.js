@@ -66,28 +66,21 @@ contract('ZtickyMarket', function(accounts) {
       assert.equal(_i, -1, 'it should have cleared the order book.');
     });
   });
-  // it("...should buy the sticker.", function() {
-  //   var jarBalance = web3.eth.getBalance(web3.eth.accounts[9]).toNumber();
-  //   var initialBalance = web3.eth.getBalance(web3.eth.accounts[6]).toNumber();
-  //   var contractBalance = web3.eth.getBalance(zz.address).toNumber();
-  //   var reward,tip, coinBalance;
-  //   return cc.balanceOf(web3.eth.accounts[6])
-  //   .then(r=>coinBalance = r.toNumber())
-  //   .then(r=>zz.computeAlbumReward(1, coinBalance))
-  //   .then(r=>{
-  //     reward = r[0].toNumber();
-  //     tip = r[1].toNumber();
-  //   })
-  //   .then(r=>zz.redeemReward(1, coinBalance, {from: web3.eth.accounts[6]}))
-  //   .then(r=>cc.balanceOf(web3.eth.accounts[6]))
-  //   .then(r=>{
-  //     var newJarBalance = web3.eth.getBalance(web3.eth.accounts[9]).toNumber();
-  //     var newBalance = web3.eth.getBalance(web3.eth.accounts[6]).toNumber();
-  //     var newContractBalance = web3.eth.getBalance(zz.address).toNumber();
-  //     assert.equal(r.toNumber(),0,'it should have burnt all coins.');
-  //     assert.equal(newBalance>initialBalance, true,'it should have redeemed ether.');
-  //     assert.equal(newContractBalance, 0,'it should have spent all ether.');
-  //     assert.equal(newJarBalance, jarBalance+tip,'it should have dropped some tips.');
-  //   });
-  // });
+  it("...should buy the sticker.", function() {
+    var iBalance,fBalance;
+    return ac.approveAndSell(_stickerId, web3.toWei(0.1,'ether'), {from: web3.eth.accounts[2]})
+    .then(r=>cc.balanceOf(web3.eth.accounts[3]))
+    .then(r=>{
+      iBalance = r.toNumber();
+      assert.equal(iBalance>web3.toWei(0.1,'ether'),true,'it should have enough funds.');
+    })
+    .then(r=>cc.buyAndTransfer(_stickerId, {from: web3.eth.accounts[3]}))
+    .then(r=>cc.balanceOf(web3.eth.accounts[3]))
+    .then(r=>{
+      fBalance = r.toNumber();
+      assert.equal(fBalance,iBalance-web3.toWei(0.1,'ether'),'it should have correctly transferred funds.');
+    })
+    .then(r=>ac.ownerOf(_stickerId))
+    .then(r=>assert.equal(r,web3.eth.accounts[3],'it should have transferred the sticker.'));
+  });
 });

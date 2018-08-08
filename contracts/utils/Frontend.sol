@@ -33,6 +33,10 @@ contract Frontend is Ownable{
     _;
   }
 
+  /**
+   * @dev Change the address of the Backend coin contract.
+   * @param _coinContractAddress The address of the newly deployed coin contract.
+   */
   function changeCoinContract(address _coinContractAddress)
   public
   onlyOwner
@@ -44,6 +48,10 @@ contract Frontend is Ownable{
     return true;
   }
 
+  /**
+   * @dev Change the address of the Backend asset contract.
+   * @param _assetContractAddress The address of the newly deployed asset contract.
+   */
   function changeAssetContract(address _assetContractAddress)
   public
   onlyOwner

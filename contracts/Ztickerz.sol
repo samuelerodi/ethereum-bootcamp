@@ -83,6 +83,11 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
   }
 
   /* INTERNALS */
+  /**
+   * @dev It randomly generates a new sticker identifier.
+   * @param _albumId The unique id of the album.
+   * @return _stickerId A new sticker identifier.
+   */
   function _generateSticker(uint16 _albumId)
   internal
   returns(uint256)
@@ -92,6 +97,13 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     return uint256(_stickerId);
   }
 
+  /**
+   * @dev It retrieve all the sticker details, i.e. its album and sticker number.
+   * @param _stickerId The unique id of the sticker.
+   * @return _albumId The unique id of the album.
+   * @return _stn The sticker number.
+   * @return _sId The sticker unique fingerprint.
+   */
   function _getStickerInfo(uint256 _stickerId)
   internal
   view
@@ -102,6 +114,14 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     _stn = _getStn(_albumId, _sId);
   }
 
+  /**
+   * @dev It calculates the sticker number in a way that guarantees artificial
+   * scarcity of the low sticker numbers while preserving a smooth probability
+   * distribution curve.
+   * @param _albumId The unique id of the album.
+   * @param _stickerId The unique id of the sticker.
+   * @return _stn The sticker number.
+   */
   function _getStn(uint16 _albumId, uint256 _stickerId)
   internal
   view
@@ -116,8 +136,8 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     //where c = substring(_stickerId, 2) % 5
 
     uint16 _n = albums[_albumId].nStickers;
-    uint16 _l = 5;          //This is the only hardcoded params and it works gives pretty good scarcity using a human range of 10-1000 stickers per album
-    uint16 _m = (_n / _l) + 1;  //Avoid zeroes
+    uint16 _l = 5;              //This is the only hardcoded params and it gives pretty good scarcity within a range of 10-1000 stickers per album
+    uint16 _m = (_n / _l) + 1;  //+1 to avoid zeroes
 
     uint256 _a = uint256(bytes10(_sId << 160)) % _n;
     uint256 _b = uint256(bytes10(_sId << 80)) % _m;
@@ -131,6 +151,15 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
   }
 
   //PUBLIC VIEW FUNCTIONS
+  /**
+   * @dev It computes the expected reward in ZtickyCoinZ associated to a successful
+   * sticker unwrap. It uses the real probability distribution of stickers in order
+   * to determine the reward associated to the newly created sticker.
+   * The more a sticker is rare, the more coins one will get as a reward.
+   * @param _albumId The unique id of the album.
+   * @param _stn The sticker number.
+   * @return out The amount of coin reward expressed in ZCZ.
+   */
   function computeCoinReward(uint16 _albumId, uint16 _stn)
   public
   view
@@ -149,7 +178,14 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     out = out.div(albums[_albumId].nStickersPerPack);                      //Divide equally among stickers in pack
   }
 
-
+  /**
+   * @dev It determines wheter the album of a given user has been successfully
+   * completed by evaluating whether the user is in possession of all the stickers
+   * with their corresponding sticker numbers that are needed to complete the album
+   * @param _owner The user to be inspected.
+   * @param _albumId The unique id of the album.
+   * @return bool Wheter completed or not.
+   */
   function isAlbumComplete(address _owner, uint16 _albumId)
   public
   view
@@ -172,6 +208,16 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     return false;
   }
 
+  /**
+   * @dev It gather all the sticker details associated to a sticker
+   * @param _stickerId The unique id of the sticker.
+   * @return _albumId The unique id of the album.
+   * @return _stn The sticker number.
+   * @return _sId The sticker unique fingerprint.
+   * @return _owner The _owner address of the sticker.
+   * @return _onSale Wheter is in the order book or not.
+   * @return _onSalePrice The selling price in case is on sale.
+   */
   function getStickerDetails(uint256 _stickerId)
   public
   view
@@ -184,6 +230,16 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     _onSalePrice = orderBook[_stickerId].price;
   }
 
+  /**
+   * @dev It gather all the sticker details associated to an array of stickers
+   * @param _stickerIds The array of unique ids of the sticker.
+   * @return _albumId The unique id of the album.
+   * @return _stn The sticker number.
+   * @return _sId The sticker unique fingerprint.
+   * @return _owner The _owner address of the sticker.
+   * @return _onSale Wheter is in the order book or not.
+   * @return _onSalePrice The selling price in case is on sale.
+   */
   function getStickersDetails(uint256[] _stickerIds)
   public
   view
@@ -207,7 +263,20 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     return (_albumId, _stn, _sId, _owner, _onSale, _onSalePrice);
   }
 
-
+  /**
+   * @dev It computes the statistics of an album
+   * @param _albumId The unique id of the album.
+   * @return _nStickers Number of sticker numbers in the allbum.
+   * @return _nStickersPerPack Number of stickers unwrapped per pack.
+   * @return _packPrice Pack price in wei.
+   * @return _ethReceived The amount of ether received due to pack unwrapping.
+   * @return _mintedCoins Amount of minted coins due to unwrap reward.
+   * @return _burntCoins Amount of burnt coins due to album completion reward.
+   * @return _nStickersInCirculation Total number of unique stickers generated by the album.
+   * @return _stnDistribution Real distribution divided by sticker number.
+   * @return _nextStnGenReward Next coin reward due to pack unwrap divided by sticker number.
+   * @return _rewardedUsers List of rewarded address upon album completion.
+   */
   function getAlbumStats(uint16 _albumId)
   public
   view
@@ -243,6 +312,19 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     }
   }
 
+  /**
+   * @dev It computes the expected ether reward upon album completion.
+   * That is paid using the ether balance stored within the contract and it is
+   * calculated using a set of different parameters to align with proper playing incentives.
+   * The reward is based on the amount of ZtickyCoinZ that the user aims to burn
+   * and it varies based on some bonuses that are:
+   * - A velocity reward ratio: that determines the speed of album completion
+   * - A global supply reward ratio: that gives a reward based on the amount of coins to burn with respect to the total coin supply
+   * @param _albumId The unique id of the album.
+   * @param _coinToBurn The amount of coins to burn.
+   * @return _eth The ether amount of the reward.
+   * @return _tips The amount of tips due to developer.
+   */
   function computeAlbumReward(uint16 _albumId, uint256 _coinToBurn)
   public
   view
@@ -281,8 +363,15 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     _tips = _total.mul(5).div(100);                //tips for developers
   }
 
+  //PUBLIC WRITE FUNCTIONS
 
-  //Public write functions
+  /**
+   * @dev It creates a new sticker album and set its parameters.
+   * @param _nS The number of stickers in the album.
+   * @param _nSxPack The number of stickers generated by each pack unwrap.
+   * @param _packPrice The price in wei of a pack.
+   * @return albumCount The number of albums present in the contract.
+   */
   function createAlbum(uint16 _nS, uint16 _nSxPack, uint256 _packPrice) //packPrice in wei
   public
   onlyOwner
@@ -295,6 +384,12 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     return albumCount++;
   }
 
+  /**
+   * @dev It buys a sticker pack and unwrap it generating n stickers as specified
+   * for the album parameters.
+   * @param _albumId The unique id of the album.
+   * @return uint256[] An array of newly generated stickers.
+   */
   function unwrapStickerPack(uint16 _albumId)
   public
   payable
@@ -324,6 +419,17 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     return out;
   }
 
+  /**
+   * @dev It serves to redeem the final ether reward upon album completion.
+   * Having completed the album is a strict requirement and the function rewards
+   * the user based on the amount of ZtickyCoinZ that the user decides to burn.
+   * The user cannot burn more coins than those generated by the global stickers unwrapping
+   * of the specific completed album.
+   * The function also recognizes a 5% tip of the total reward to the developers.
+   * @param _albumId The unique id of the album.
+   * @param _coinToBurn Amount of ZtickyCoinZ to be burnt.
+   * @return bool Whether successful or not.
+   */
   function redeemReward(uint16 _albumId, uint256 _coinToBurn)
   public
   whenNotPaused
