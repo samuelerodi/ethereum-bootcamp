@@ -142,10 +142,22 @@ Additional game features are in roadmap...
 
 
 
+## HACK
+1. To make webpack live reload working properly within vagrant:
+Edit:
+vi node_modules/react-scripts/config/webpackDevServer.config.js
 
+Add:
+watchOptions: {
+  poll: true
+}
 
-
-
+2. To change build folder:
+Edit:
+vi node_modules/react-scripts/config/paths.js
+Modify:
+  appBuild: resolveApp('build'),  
+This appears three times.
 
 ## Setup
 This repo comes with everything you need to start using smart contracts from a react app with Drizzle. It includes `drizzle`, `drizzle-react` and `drizzle-react-components` to give you a complete overview of Drizzle's capabilities.
