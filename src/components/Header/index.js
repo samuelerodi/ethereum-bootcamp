@@ -1,5 +1,6 @@
 import React from 'react';
 import logo from '../../assets/logo.svg';
+import './component.css';
 /* eslint-disable react/prefer-stateless-function */
 class Header extends React.Component {
   render() {

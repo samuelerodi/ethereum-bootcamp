@@ -54,7 +54,7 @@ export default class HomePage extends React.PureComponent {
     // };
 
     return (
-      <div>
+      <div className="text-center">
         <Header />
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
