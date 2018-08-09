@@ -1,8 +1,3 @@
-var SimpleStorage = artifacts.require("SimpleStorage");
-var TutorialToken = artifacts.require("TutorialToken");
-var ComplexStorage = artifacts.require("ComplexStorage");
-//useless
-
 var ZtickyZtorage = artifacts.require("ZtickyZtorage");
 var ZtickyCoinZ = artifacts.require("ZtickyCoinZ");
 var ZtickerZ = artifacts.require("ZtickerZ");

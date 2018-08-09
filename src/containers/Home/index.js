@@ -6,6 +6,8 @@
 
 import React from 'react';
 import Header from '../../components/Header';
+import { Button } from 'reactstrap';
+import {Link} from 'react-router';
 // import PropTypes from 'prop-types';
 // import { Helmet } from 'react-helmet';
 // import { FormattedMessage } from 'react-intl';
@@ -57,8 +59,9 @@ export default class HomePage extends React.PureComponent {
       <div className="text-center">
         <Header />
         <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
+          Get ready and press play!
         </p>
+        <Button outline color="success" tag={Link} to="/about">Play!</Button>
       </div>
       // <article>
       //   <Helmet>
