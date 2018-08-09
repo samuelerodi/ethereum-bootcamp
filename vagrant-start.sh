@@ -21,6 +21,13 @@ do
   sudo mount --bind /home/vagrant/$i /vagrant/$i/
 done
 
+echo "Mounting symlink of contract folder for client application..."
+if [ ! -d /vagrant/build/contracts ]; then
+  # Control will enter here if directory doesn't exists.
+  echo "WARNING: /vagrant/build/contracts not found. Creating directory..."
+  mkdir /vagrant/build/contracts
+fi
+sudo mount --bind /vagrant/build/contracts /vagrant/src/contracts
 # Prepare node_modules directory
 # if [ ! -d /vagrant/node_modules ]; then
 #   # Control will enter here if $DIRECTORY doesn't exists.
