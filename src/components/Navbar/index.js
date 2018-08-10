@@ -36,33 +36,17 @@ export default class Example extends React.Component {
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>
               <NavItem>
-                <NavLink tag={Link} to="/about">
-                  About
-                </NavLink>
+                <NavLink tag={Link} to="/album"> My Album </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink tag={Link} to="/market"> MarketPlace </NavLink>
               </NavItem>
               <NavItem>
                 <NavLink tag={Link} to="/stats">Statistics</NavLink>
               </NavItem>
               <NavItem>
-                <NavLink tag={Link} to="/aaa">Not found</NavLink>
+                <NavLink tag={Link} to="/about">?</NavLink>
               </NavItem>
-              <UncontrolledDropdown nav inNavbar>
-                <DropdownToggle nav caret>
-                  Options
-                </DropdownToggle>
-                <DropdownMenu right>
-                  <DropdownItem>
-                    Option 1
-                  </DropdownItem>
-                  <DropdownItem>
-                    Option 2
-                  </DropdownItem>
-                  <DropdownItem divider />
-                  <DropdownItem>
-                    Reset
-                  </DropdownItem>
-                </DropdownMenu>
-              </UncontrolledDropdown>
             </Nav>
           </Collapse>
         </Navbar>
@@ -70,3 +54,21 @@ export default class Example extends React.Component {
     );
   }
 }
+
+// <UncontrolledDropdown nav inNavbar>
+//   <DropdownToggle nav caret>
+//     Options
+//   </DropdownToggle>
+//   <DropdownMenu right>
+//     <DropdownItem>
+//       Option 1
+//     </DropdownItem>
+//     <DropdownItem>
+//       Option 2
+//     </DropdownItem>
+//     <DropdownItem divider />
+//     <DropdownItem>
+//       Reset
+//     </DropdownItem>
+//   </DropdownMenu>
+// </UncontrolledDropdown>

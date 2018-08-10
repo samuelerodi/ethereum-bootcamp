@@ -2,7 +2,9 @@
 import App from '../App';
 import Home from '../containers/Home';
 import About from '../containers/About';
-import Stats from '../containers/Stats';
+import Statistics from '../containers/Statistics';
+import MarketPlace from '../containers/MarketPlace';
+import MyAlbum from '../containers/MyAlbum';
 // import NotFound from '../containers/NotFound';
 
 
@@ -12,7 +14,9 @@ export default [
     childRoutes: [
 
         { path: '/about', component: About },
-        { path: '/stats', component: Stats },
+        { path: '/stats', component: Statistics },
+        { path: '/market', component: MarketPlace },
+        { path: '/album', component: MyAlbum },
     //     {
     //         path: '/posts',
     //         component: Posts,
