@@ -1,25 +1,45 @@
 import React from 'react';
-import logo from '../../assets/logo.svg';
 import './component.css';
+import stns from './constants';
 /* eslint-disable react/prefer-stateless-function */
 
-import { Card, CardImg, CardBody, CardTitle, CardSubtitle, Button } from 'reactstrap';
+import { Card, CardImg, CardBody, CardTitle, CardSubtitle, Button, Media, Row, Col } from 'reactstrap';
 
-export default class Sticker extends React.Component {
+export class Sticker extends React.Component {
   constructor(){
     super()
   }
   render() {
+    let img = stns[this.props.stn];
     return (
       <div>
-      <Card>
-        <CardImg top width="100%" src="https://placeholdit.imgix.net/~text?txtsize=33&txt=318%C3%97180&w=318&h=180" alt="Card image cap" />
-        <CardBody>
-          <CardTitle>Card title</CardTitle>
-          <CardSubtitle>Card subtitle</CardSubtitle>
-        </CardBody>
-      </Card>
-    </div>
+        <Card>
+          <CardImg top width="100%" src={img} alt="Zticker" />
+          <CardBody>
+            <CardTitle>{this.props.stn}</CardTitle>
+            <CardSubtitle>{this.props.stickerId}</CardSubtitle>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
+}
+
+export class StickerSm extends React.Component {
+  constructor(){
+    super()
+  }
+  render() {
+    let img = stns[this.props.stn];
+    return (
+      <Row className="mt-3" tag="li">
+        <Col xs="6" className="text-right">
+          <img width="100%" src={img} alt="Zticker" />
+        </Col>
+        <Col xs="6">
+          <div  className="mt-3">No. <strong>{this.props.stn}</strong></div>
+        </Col>
+      </Row>
     );
   }
 }
