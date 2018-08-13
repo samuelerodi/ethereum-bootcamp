@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-
 import { DrizzleProvider } from 'drizzle-react';
 import drizzleOptions from './config/drizzleOptions';
 import { LoadingContainer } from 'drizzle-react-components';
@@ -14,14 +13,14 @@ import './App.css';
 class App extends Component {
   render() {
     return (
-      <DrizzleProvider options={drizzleOptions}  store={store}>
-        <LoadingContainer>
-          <div className="App">
-            <Navbar />
-            {this.props.children}
-          </div>
-      </LoadingContainer>
-    </DrizzleProvider>
+        <DrizzleProvider options={drizzleOptions}  store={store}>
+          <LoadingContainer>
+            <div className="App">
+              <Navbar />
+              {this.props.children}
+            </div>
+        </LoadingContainer>
+      </DrizzleProvider>
     );
   }
 }

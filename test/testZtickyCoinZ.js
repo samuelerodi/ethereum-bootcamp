@@ -11,23 +11,6 @@ const _amount1 = 1000;
 const _amount2 = 100;
 
 
-// ZtickyCoinZ AVAILABLE FUNCTIONS
-// function mint(address _to, uint256 _amount) onlyFrontend whenNotPaused public returns (bool);
-// function burn(uint256 _value) public onlyFrontend whenNotPaused;
-// function buyAndTransfer(uint256 _stickerId) public whenNotPaused returns(bool);
-// function transfer(address _to, uint256 _value) public whenNotPaused returns (bool)
-// function transferFrom(address _from, address _to, uint256 _value) public whenNotPaused returns (bool)
-// function approve(address _spender,  uint256 _value) public whenNotPaused returns (bool)
-// function increaseApproval(address _spender,  uint _addedValue) public whenNotPaused returns (bool success)
-// function decreaseApproval(address _spender,  uint _subtractedValue) public whenNotPaused returns (bool success)
-// function allowance(address _owner, address _spender) public view returns (uint256)
-// function balanceOf(address _owner) public view returns (uint256)
-// function totalSupply() public view returns (uint256)
-// function pause() onlyOwner whenNotPaused public
-// function unpause() onlyOwner whenPaused public
-// function reclaimEther() external onlyOwner
-// function changeFrontend(address _newFrontend) public onlyOwner
-
 contract('ZtickyCoinZ', function(accounts) {
 
   it("...should change frontend.", function() {
