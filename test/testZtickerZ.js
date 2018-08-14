@@ -24,7 +24,7 @@ contract('ZtickerZ', function(accounts) {
   it("...should create  an Album.", function() {
     return zz.createAlbum(N_STICKERS, N_STICKERS_X_PACK, web3.toWei(PACK_PRICE, 'ether'), {from: web3.eth.accounts[0]})
     .then(r=>zz.albumCount())
-    .then(r=>assert.equal(r,1,'it should contain zero at the moment.'));
+    .then(r=>assert.equal(r.toNumber(),1,'it should contain one at the moment.'));
   });
   it("...should modify the tips Jar.", function() {
     return zz.changeTipsAddress(web3.eth.accounts[9], {from: web3.eth.accounts[0]})
@@ -33,7 +33,7 @@ contract('ZtickerZ', function(accounts) {
   });
   it("...should compute initial coin reward.", function() {
     return zz.computeCoinReward(0, 0, {from: web3.eth.accounts[5]})
-    .then(r=>assert.equal(r,web3.toWei(1,'ether')*1000*(PACK_PRICE/N_STICKERS_X_PACK),'it should equal 1000.'));
+    .then(r=>assert.equal(r.toNumber(),web3.toWei(1,'ether')*1000*(PACK_PRICE/N_STICKERS_X_PACK),'it should equal 1000.'));
   });
   it("...should unwrap a Sticker.", function() {
     return zz.unwrapStickerPack(0, {from: web3.eth.accounts[5], value: web3.toWei(PACK_PRICE, 'ether')})

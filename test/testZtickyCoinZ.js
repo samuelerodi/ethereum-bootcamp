@@ -30,6 +30,9 @@ contract('ZtickyCoinZ', function(accounts) {
       return s.balanceOf(accounts[2])
       .then(function(r){
         assert.equal(r, 0, 'it should be 0');
+        return s.changeFrontend(accounts[1], {from: accounts[0]})
+      })
+      .then(function(r){
         return s.mint(accounts[2], _amount1, {from: accounts[1]})
       })
       .then(function(r){
