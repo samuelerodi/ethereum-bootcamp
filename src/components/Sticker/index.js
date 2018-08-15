@@ -36,17 +36,6 @@ class StickerBox extends React.Component {
     this.state={
       sellPrice:0
     };
-    this.instantiateContracts();
-  }
-  instantiateContracts = () =>{
-    if (this.loaded) return Promise.resolve();
-    return ZtickerZ.deployed()
-    .then((r)=>this.ZtickerZ=r)
-    .then(()=>ZtickyZtorage.deployed())
-    .then((r)=>this.ZtickyZtorage=r)
-    .then(()=>ZtickyCoinZ.deployed())
-    .then((r)=>this.ZtickyCoinZ=r)
-    .then(()=>this.loaded=true);
   }
   changePrice=(e)=>{
     this.setState({sellPrice:e.target.value});
@@ -54,7 +43,7 @@ class StickerBox extends React.Component {
   sell = (_sId, _price) => {
     console.log(this.props.stickerId, fromZCZ(this.state.sellPrice))
     if (!this.state.sellPrice) return;
-    this.ZtickyZtorage.approveAndSell(this.props.stickerId, fromZCZ(this.state.sellPrice),{
+    this.props.ac.approveAndSell(this.props.stickerId, fromZCZ(this.state.sellPrice),{
       from: this.props.account,
       gas: 1500000,
       gasPrice: 4000000000
@@ -65,7 +54,7 @@ class StickerBox extends React.Component {
   }
   cancelOrder = () => {
     if (!this.props.onSale) return;
-    this.ZtickerZ.cancelSellOrder(this.props.stickerId,{
+    this.props.zz.cancelSellOrder(this.props.stickerId,{
       from: this.props.account,
       gas: 1500000,
       gasPrice: 4000000000
@@ -141,6 +130,46 @@ export class StickerSm extends React.Component {
           <div ># <strong>{this.props.stn}</strong></div>
         </Col>
       </Row>
+    );
+  }
+}
+
+
+
+export class MarketSticker extends React.Component {
+  constructor(){
+    super()
+  }
+  buy=()=>{
+    this.props.cc.buyAndTransfer(this.props.stickerId,{
+      from: this.props.account,
+      gas: 1500000,
+      gasPrice: 4000000000
+    })
+    .then(()=>this.props.refresh());
+  }
+  render() {
+    let img = stns[this.props.stn];
+    let button = (<Button className="btn btn-sm btn-success mt-1" onClick={this.buy}>Buy</Button>);
+    if (this.props.price>fromZCZ(this.props.balance) || this.props.seller==this.props.account)
+      button = (<Button className="btn btn-sm btn-success mt-1" onClick={this.buy} disabled>Buy</Button>);
+    return (
+      <Card className="m-1">
+        <CardImg top width="100%" src={img} alt="Zticker" className="p-3"/>
+        <CardBody>
+          <CardTitle># {this.props.stn}</CardTitle>
+          <CardSubtitle className="single-line-break">
+            <small className="text-muted">UID: <i>{this.props.stickerId}</i></small>
+          </CardSubtitle>
+        </CardBody>
+        <CardFooter>
+          <p>Price: {toZCZ(this.props.price).toFixed(2)} <strong>ZCZ</strong> </p>
+          {button}
+          <br/>
+          <small className="text-muted">This is being sold by: </small>
+          <p className="single-line-break">{this.props.seller}</p>
+        </CardFooter>
+      </Card>
     );
   }
 }

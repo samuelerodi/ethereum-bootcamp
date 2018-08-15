@@ -31,7 +31,6 @@ class MyAlbumPage extends React.PureComponent {
     this.state={
       reload:false
     }
-
     this.missing=[];
     this.stickers={
         _stn:[],
@@ -79,7 +78,6 @@ class MyAlbumPage extends React.PureComponent {
     .then(r=>this.ids=getStickersOf(r))
     .then(r=>this.ZtickerZ.getStickersDetails(this.ids))
     .then(r=>this.stickers=getStickersDetails(r))
-    .then(r=>console.log(this.album))
     .then(r=>{
       var missing=[];
       for (var i=0;i<this.album.nStickers; i++){
@@ -115,7 +113,11 @@ class MyAlbumPage extends React.PureComponent {
                 <Row>
                   {this.ids.map((el,idx)=>{
                     return (<Col xs="3" key={el}>
-                      <Sticker  account={this.account}
+                      <Sticker
+                                ac={this.ZtickyZtorage}
+                                cc={this.ZtickyCoinZ}
+                                zz={this.ZtickerZ}
+                                account={this.account}
                                 stn={this.stickers._stn[idx]}
                                 stickerId={el}
                                 onSale={this.stickers._onSale[idx]}

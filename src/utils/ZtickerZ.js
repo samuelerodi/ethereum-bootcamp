@@ -1,3 +1,5 @@
+import {fromZCZ, toZCZ} from './ZtickyCoinZ';
+
 export function album(r){
   return {
       albumId:r[0].toNumber(),
@@ -23,5 +25,35 @@ export function getStickersDetails(r){
      _owner: r[3],
      _onSale: r[4],
     _onSalePrice: r[5].map(e=> e.toNumber())
+  }
+}
+
+export function getOrderBook(r){
+  return {
+    stickers:r[0].map(e=>e.toString()),
+    prices:r[1].map(e=> toZCZ(e)),
+    sellers: r[2]
+  }
+}
+
+export function getAlbumStats(r){
+  return {
+    _nStickers:r[0].toNumber(),
+    _nStickersPerPack: r[1].toNumber(),
+    _packPrice: r[2].toNumber(),
+    _ethReceived: r[3].toNumber(),
+    _mintedCoins: r[4].toNumber(),
+    _burntCoins: r[5].toNumber(),
+    _nStickersInCirculation: r[6].toNumber(),
+    _stnDistribution: r[7].map(e=>e.toNumber()),
+    _nextStnGenReward: r[8].map(e=>e.toNumber()),
+    _rewardedUsers: r[9]
+  }
+}
+
+export function computeAlbumReward(r){
+  return {
+    _eth:toZCZ(r[0]),
+    _tips:toZCZ(r[1])
   }
 }
