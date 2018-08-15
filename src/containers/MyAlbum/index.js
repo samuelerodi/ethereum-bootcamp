@@ -13,6 +13,14 @@ import PropTypes from 'prop-types';
 import { Container, Row, Col, Button } from 'reactstrap';
 import {Sticker, StickerSm} from '../../components/Sticker';
 
+import ZtickerZ from '../../instances/ZtickerZ';
+import ZtickyZtorage from '../../instances/ZtickyZtorage';
+import ZtickyCoinZ from '../../instances/ZtickyCoinZ';
+
+import web3 from '../../config/web3';
+import {album, getStickersOf, getStickersDetails} from '../../utils/ZtickerZ';
+import {fromZCZ, toZCZ} from '../../utils/ZtickyCoinZ';
+
 
 class MyAlbumPage extends React.PureComponent {
   /**
@@ -21,54 +29,80 @@ class MyAlbumPage extends React.PureComponent {
    constructor(props, context) {
     super(props);
     this.state={
-      missing:[],
-      stickers:{
-          _stn:[],
-          _sId:[],
-          _onSale:[],
-          _onSalePrice:[]
-        },
-      ids:[],
-      balance:0,
-      album:{}
+      reload:false
     }
-    this.web3=context.drizzle.web3;
-    this.ZtickerZ = context.drizzle.contracts.ZtickerZ;
-    this.ZtickyZtorage = context.drizzle.contracts.ZtickyZtorage;
-    this.ZtickyCoinZ = context.drizzle.contracts.ZtickyCoinZ;
-    this.ZtickerZ.methods.albums(0).call().then(r=>this.setState({album:r}));
+
+    this.missing=[];
+    this.stickers={
+        _stn:[],
+        _sId:[],
+        _onSale:[],
+        _onSalePrice:[]
+      };
+    this.ids=[];
+    this.balance=0;
+    this.album={};
+
+    this.web3=web3;
+
+    this.instantiateContracts()
+    .then(()=> this.ZtickerZ.albums(0))
+    .then(r => this.album=album(r));
     //INIT
     this.refresh();
   }
-  refresh=()=>{
-    this.web3.eth.getAccounts()
-    .then(r=>this.setState({account:r[0]}))
-    .then(r=>this.ZtickyZtorage.methods.getStickersOf(this.state.account).call())
-    .then(r=>this.setState({ids:r}))
-    .then(r=>this.ZtickerZ.methods.getStickersDetails(this.state.ids).call())
-    .then(r=>this.setState({stickers:r}))
-    .then(r=>console.log(this.state.stickers))
+  instantiateContracts = () =>{
+    if (this.loaded) return Promise.resolve();
+    return ZtickerZ.deployed()
+    .then((r)=>this.ZtickerZ=r)
+    .then(()=>ZtickyZtorage.deployed())
+    .then((r)=>this.ZtickyZtorage=r)
+    .then(()=>ZtickyCoinZ.deployed())
+    .then((r)=>this.ZtickyCoinZ=r)
+    .then(r=>{
+      return new Promise(function(resolve,reject){
+        this.web3.eth.getAccounts((e,r)=>{
+          if(e)return reject(e);
+          this.account=r[0];
+          resolve(this.account);
+        })
+      }.bind(this))
+     })
+    .then(()=>this.loaded=true);
+  }
+  reRender=()=>{
+    this.setState({reload:!this.state.reload});
+  }
+  refresh = ()=>{
+    this.instantiateContracts()
+    .then(r=>this.ZtickyZtorage.getStickersOf(this.account))
+    .then(r=>this.ids=getStickersOf(r))
+    .then(r=>this.ZtickerZ.getStickersDetails(this.ids))
+    .then(r=>this.stickers=getStickersDetails(r))
+    .then(r=>console.log(this.album))
     .then(r=>{
       var missing=[];
-      for (var i=0;i<this.state.album.nStickers; i++){
-        if(!this.state.stickers._stn.includes(i.toString())) missing.push(i);
+      for (var i=0;i<this.album.nStickers; i++){
+        if(!this.stickers._stn.includes(i.toString())) missing.push(i);
       }
-      this.setState({missing:missing});
-    });
-    this.web3.eth.getAccounts()
-    .then(r=> this.ZtickyCoinZ.methods.balanceOf(this.state.account).call())
-    .then(r=> this.setState({balance:this.web3.utils.fromWei(r,'ether')}));
+      this.missing=missing;
+    })
+    .then(r=> this.ZtickyCoinZ.balanceOf(this.account))
+    .then(r=> this.balance=toZCZ(r))
+    .then(r=>this.reRender());
   }
-  buyNewPack = () => {
-    this.ZtickerZ.methods.unwrapStickerPack(0).send({
-      value:this.state.album.packPrice,
+  buyNewPack = ()=> {
+    this.ZtickerZ.unwrapStickerPack(0, {
+      from: this.account,
+      value:this.album.packPrice,
       gas: 1500000,
       gasPrice: 4000000000
     })
     .then(()=>this.refresh());
   }
-  componentDidMount() {
-   }
+
+  componentDidMount() { }
+
   render() {
     return (
       <div className="mt-5">
@@ -79,12 +113,13 @@ class MyAlbumPage extends React.PureComponent {
               <p>Here you can find all your stickers!</p>
               <div className="border-top">
                 <Row>
-                  {this.state.ids.map((el,idx)=>{
+                  {this.ids.map((el,idx)=>{
                     return (<Col xs="3" key={el}>
-                      <Sticker  stn={this.state.stickers._stn[idx]}
+                      <Sticker  account={this.account}
+                                stn={this.stickers._stn[idx]}
                                 stickerId={el}
-                                onSale={this.state.stickers._onSale[idx]}
-                                price={this.state.stickers._onSalePrice[idx]}
+                                onSale={this.stickers._onSale[idx]}
+                                price={this.stickers._onSalePrice[idx]}
                                 refresh={this.refresh}></Sticker>
                     </Col>)
                   })}
@@ -99,19 +134,19 @@ class MyAlbumPage extends React.PureComponent {
               <p>This is a recap of your collection</p>
               <ul className="flex-column">
                 <li>
-                  <p><strong> Number of stickers in the album:</strong> {this.state.album.nStickers} </p>
+                  <p><strong> Number of stickers in the album:</strong> {this.album.nStickers} </p>
                 </li>
                 <li>
-                  <p><strong> Total collected stickers:</strong> {this.state.album.nStickers - this.state.missing.length} </p>
+                  <p><strong> Total collected stickers:</strong> {this.album.nStickers - this.missing.length} </p>
                 </li>
                 <li>
-                  <p><strong> Your balance:</strong> {parseFloat(this.state.balance).toFixed(3)} <strong>ZCZ</strong> </p>
+                  <p><strong> Your balance:</strong> {parseFloat(this.balance).toFixed(3)} <strong>ZCZ</strong> </p>
                 </li>
                 <li>
-                  <p><strong> Missing stickers:</strong> {this.state.missing.length}</p>
+                  <p><strong> Missing stickers:</strong> {this.missing.length}</p>
                 </li>
                 <Row>
-                {this.state.missing.map(i=>{
+                {this.missing.map(i=>{
                   return (<Col xs="6" key={'missing_' + i}>
                       <StickerSm stn={i}></StickerSm>
                     </Col>)

@@ -22,24 +22,40 @@ import {
   Col
 } from 'reactstrap';
 
+import ZtickerZ from '../../instances/ZtickerZ';
+import ZtickyZtorage from '../../instances/ZtickyZtorage';
+import ZtickyCoinZ from '../../instances/ZtickyCoinZ';
+import web3 from '../../config/web3';
+import {album, getStickersOf, getStickersDetails} from '../../utils/ZtickerZ';
+import {fromZCZ, toZCZ} from '../../utils/ZtickyCoinZ';
 
 class StickerBox extends React.Component {
   constructor(props, context) {
     super(props);
-    this.web3=context.drizzle.web3;
-    this.ZtickerZ = context.drizzle.contracts.ZtickerZ;
-    this.ZtickyZtorage = context.drizzle.contracts.ZtickyZtorage;
-    this.ZtickyCoinZ = context.drizzle.contracts.ZtickyCoinZ;
+    this.web3=web3;
     this.state={
       sellPrice:0
     };
+    this.instantiateContracts();
+  }
+  instantiateContracts = () =>{
+    if (this.loaded) return Promise.resolve();
+    return ZtickerZ.deployed()
+    .then((r)=>this.ZtickerZ=r)
+    .then(()=>ZtickyZtorage.deployed())
+    .then((r)=>this.ZtickyZtorage=r)
+    .then(()=>ZtickyCoinZ.deployed())
+    .then((r)=>this.ZtickyCoinZ=r)
+    .then(()=>this.loaded=true);
   }
   changePrice=(e)=>{
     this.setState({sellPrice:e.target.value});
   }
   sell = (_sId, _price) => {
+    console.log(this.props.stickerId, fromZCZ(this.state.sellPrice))
     if (!this.state.sellPrice) return;
-    this.ZtickyZtorage.methods.approveAndSell(this.props.stickerId, this.web3.utils.toWei(this.state.sellPrice,'ether')).send({
+    this.ZtickyZtorage.approveAndSell(this.props.stickerId, fromZCZ(this.state.sellPrice),{
+      from: this.props.account,
       gas: 1500000,
       gasPrice: 4000000000
     })
@@ -49,7 +65,8 @@ class StickerBox extends React.Component {
   }
   cancelOrder = () => {
     if (!this.props.onSale) return;
-    this.ZtickerZ.methods.cancelSellOrder(this.props.stickerId).send({
+    this.ZtickerZ.cancelSellOrder(this.props.stickerId,{
+      from: this.props.account,
       gas: 1500000,
       gasPrice: 4000000000
     })
@@ -73,7 +90,7 @@ class StickerBox extends React.Component {
     if (this.props.onSale)
     footer =(
               <CardFooter>
-                <small className="text-muted">This is already on sale @{parseFloat(this.web3.utils.fromWei(this.props.price,'ether')).toFixed(2)} <strong>ZCZ</strong></small>
+                <small className="text-muted">This is already on sale @{toZCZ(this.props.price).toFixed(2)} <strong>ZCZ</strong></small>
                 <Button className="btn btn-sm btn-danger mt-1" onClick={this.cancelOrder}>Cancel order</Button>
               </CardFooter>
               );

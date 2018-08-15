@@ -13,7 +13,7 @@ import './App.css';
 class App extends Component {
   render() {
     return (
-        <DrizzleProvider options={drizzleOptions}  store={store}>
+        <DrizzleProvider options={drizzleOptions} >
           <LoadingContainer>
             <div className="App">
               <Navbar />

@@ -61,7 +61,7 @@ export default class HomePage extends React.PureComponent {
         <p className="App-intro">
           Get ready and press play!
         </p>
-        <Button outline color="success" tag={Link} to="/about">Play!</Button>
+        <Button outline color="success" tag={Link} to="/album">Play!</Button> 
       </div>
       // <article>
       //   <Helmet>

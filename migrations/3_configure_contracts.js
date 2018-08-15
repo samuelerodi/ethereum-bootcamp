@@ -8,7 +8,9 @@ module.exports = function(deployer) {
     .then(r => {ac=r; return ZtickyCoinZ.deployed();})
     .then(r => {cc=r; return ZtickerZ.deployed();})
     .then(r => zz = r)
-    .then(r => ac.changeFrontend(zz.address, {from: web3.eth.accounts[0]}))
-    .then(r => cc.changeFrontend(zz.address, {from: web3.eth.accounts[0]}))
-    .then(r => zz.createAlbum(40, 4, web3.toWei(0.01, 'ether'), {from: web3.eth.accounts[0]}));
+    .then(r => {
+      ac.changeFrontend(zz.address, {from: web3.eth.accounts[0]});
+      cc.changeFrontend(zz.address, {from: web3.eth.accounts[0]});
+      zz.createAlbum(40, 4, web3.toWei(0.01, 'ether'), {from: web3.eth.accounts[0]});
+    });
 };
