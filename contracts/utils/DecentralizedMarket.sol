@@ -68,10 +68,10 @@ contract DecentralizedMarket is Frontend, Pausable{
     }
     delete allOrderBookIndex[allOrderBookIndex.length - 1];
     allOrderBookIndex.length--; */
+    allOrderBookCount--;
     allOrderBookIndex[_idx] = allOrderBookIndex[allOrderBookCount];
     orderBook[allOrderBookIndex[allOrderBookCount]].index = _idx;
     delete allOrderBookIndex[allOrderBookCount];
-    allOrderBookCount--;
     return true;
   }
 

@@ -276,6 +276,8 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
    * @return _stnDistribution Real distribution divided by sticker number.
    * @return _nextStnGenReward Next coin reward due to pack unwrap divided by sticker number.
    * @return _rewardedUsers List of rewarded address upon album completion.
+   * @return _rewardedEth Amount of Eth prize received back upon album completion.
+   * @return _rewardedCoinBurnt Amount of coin burnt upon album completion.
    */
   function getAlbumStats(uint16 _albumId)
   public
@@ -290,7 +292,10 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
             uint256 _nStickersInCirculation,
             uint256[] _stnDistribution,
             uint256[] _nextStnGenReward,
-            address[] _rewardedUsers)
+            address[] _rewardedUsers
+            /* uint256[] _rewardedEth, */
+            /* uint256[] _rewardedCoinBurnt */
+            )
   {
     _nStickers = albums[_albumId].nStickers;
     _nStickersPerPack = albums[_albumId].nStickersPerPack;
@@ -303,8 +308,12 @@ contract ZtickerZ is Destructible, DecentralizedMarket, SeedGenerator, TipsManag
     _stnDistribution = new uint256[](albums[_albumId].nStickers);
     _nextStnGenReward = new uint256[](albums[_albumId].nStickers);
     _rewardedUsers = new address[](albums[_albumId].nRewardedUsers);
+    /* _rewardedEth = new uint256[](albums[_albumId].nRewardedUsers); */
+    /* _rewardedCoinBurnt = new uint256[](albums[_albumId].nRewardedUsers); */
     for (uint256 i = 0; i < albums[_albumId].nRewardedUsers ; i++) {
        _rewardedUsers[i] = albums[_albumId].rewardedUsers[i];
+       /* _rewardedEth[i] = albums[_albumId].rewardedEth[_rewardedUsers[i]]; */
+       /* _rewardedCoinBurnt[i] = albums[_albumId].rewardedCoinBurnt[_rewardedUsers[i]]; */
     }
     for (uint16 l = 0; l < albums[_albumId].nStickers ; l++) {
        _stnDistribution[l] = albums[_albumId].stickersMap[l];

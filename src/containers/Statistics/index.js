@@ -35,7 +35,9 @@ class StatsPage extends React.PureComponent {
       _nStickersInCirculation: 0,
       _stnDistribution: [],
       _nextStnGenReward: [],
-      _rewardedUsers: []
+      _rewardedUsers: [],
+      _rewardedEth: [],
+      _rewardedCoinBurnt: []
     };
     this.contractBalance=0;
     this.balance=0;
@@ -114,7 +116,7 @@ class StatsPage extends React.PureComponent {
                     <td><img width="40%" src={stns[idx]}/></td>
                     <th scope="row">{idx}</th>
                     <td>{e}</td>
-                    <td>{(e*100/this.stats._nStickersInCirculation).toFixed(4)} %</td>
+                    <td>{(e*100/this.stats._nStickersInCirculation).toFixed(2)} %</td>
                     <td>{toZCZ(this.stats._nextStnGenReward[idx]).toFixed(2)} <strong>ZCZ</strong></td>
                   </tr>
                 )}
@@ -136,7 +138,7 @@ class StatsPage extends React.PureComponent {
                 <li><p> Coin successfully burnt: {toZCZ(this.stats._burntCoins).toFixed(3)} <strong>ZCZ</strong></p></li>
               </ul>
               <h2>Album completed?</h2>
-              <p>Calculate your expected ETH reward by specifying the amount of ZCZ coins you would like to burn.</p>
+              <p>Calculate your expected ETH reward by specifying the amount of <strong>ZCZ</strong> you would like to burn.</p>
               <p>Your current balance: {this.balance.toFixed(3)} <strong>ZCZ</strong></p>
               <InputGroup size="sm">
                 <Input placeholder="Coin to burn..." type="number" step="0.1" onChange={this.computeFinalReward}/>
@@ -146,7 +148,26 @@ class StatsPage extends React.PureComponent {
               </InputGroup>
               <p><strong>Your expected reward: {this.reward._eth.toFixed(5)} ETH</strong></p>
               <small>Expected tips: {this.reward._tips.toFixed(5)} <strong>ETH</strong></small>
-              <h2 className="mt-5">Rewarded User:</h2>
+              <h2 className="mt-5">Users Leaderboard</h2>
+              <p>Total completed albums:{this.stats._rewardedUsers.length}</p>
+              <Table size="sm">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>User</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {this.stats._rewardedUsers.map((e,idx)=>{
+                    return (
+                      <tr key={idx}>
+                        <th scope="row">{idx + 1}</th>
+                        <td >{e}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </Table>
             </Col>
           </Row>
         </Container>

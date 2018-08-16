@@ -48,6 +48,8 @@ export function getAlbumStats(r){
     _stnDistribution: r[7].map(e=>e.toNumber()),
     _nextStnGenReward: r[8].map(e=>e.toNumber()),
     _rewardedUsers: r[9]
+    // _rewardedEth: r[10].map(e=>e.toNumber()),
+    // _rewardedCoinBurnt: r[11].map(e=>e.toNumber())
   }
 }
 
