@@ -5,6 +5,7 @@ import About from '../containers/About';
 import Statistics from '../containers/Statistics';
 import MarketPlace from '../containers/MarketPlace';
 import MyAlbum from '../containers/MyAlbum';
+import Admin from '../containers/Admin';
 // import NotFound from '../containers/NotFound';
 
 
@@ -17,6 +18,7 @@ export default [
         { path: '/stats', component: Statistics },
         { path: '/market', component: MarketPlace },
         { path: '/album', component: MyAlbum },
+        { path: '/admin', component: Admin },
     //     {
     //         path: '/posts',
     //         component: Posts,

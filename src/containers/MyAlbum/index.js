@@ -10,7 +10,7 @@ import {
 } from 'drizzle-react-components';
 import { drizzleConnect } from 'drizzle-react';
 import PropTypes from 'prop-types';
-import { Container, Row, Col, Button } from 'reactstrap';
+import { Container, Row, Col, Button, Input, InputGroup, InputGroupAddon, InputGroupText } from 'reactstrap';
 import {Sticker, StickerSm} from '../../components/Sticker';
 
 import ZtickerZ from '../../instances/ZtickerZ';
@@ -18,7 +18,7 @@ import ZtickyZtorage from '../../instances/ZtickyZtorage';
 import ZtickyCoinZ from '../../instances/ZtickyCoinZ';
 
 import web3 from '../../config/web3';
-import {album, getStickersOf, getStickersDetails} from '../../utils/ZtickerZ';
+import {album, getStickersOf, getStickersDetails, computeAlbumReward} from '../../utils/ZtickerZ';
 import {fromZCZ, toZCZ} from '../../utils/ZtickyCoinZ';
 
 
@@ -41,7 +41,8 @@ class MyAlbumPage extends React.PureComponent {
     this.ids=[];
     this.balance=0;
     this.album={};
-
+    this.coinToBurn=0;
+    this.reward={_eth:0,_tips:0};
     this.web3=web3;
 
     this.instantiateContracts()
@@ -98,10 +99,66 @@ class MyAlbumPage extends React.PureComponent {
     })
     .then(()=>this.refresh());
   }
+  computeFinalReward=(e)=>{
+    this.coinToBurn=e.target.value;
+    if(!this.coinToBurn)this.coinToBurn=0;
+    this.reRender();
+    this.ZtickerZ.computeAlbumReward(0, fromZCZ(this.coinToBurn))
+    .then(r=>this.reward=computeAlbumReward(r))
+    .then(r=>this.reRender());
+  }
+  redeemAlbumReward = ()=> {
+    if(!this.coinToBurn) return;
+    if(this.coinToBurn>this.balance) return;
+    this.ZtickerZ.redeemReward(0, fromZCZ(this.coinToBurn), {
+      from: this.account,
+      gas: 1500000,
+      gasPrice: 4000000000
+    })
+    .then(()=>this.refresh());
+  }
 
   componentDidMount() { }
 
   render() {
+    let missing = (
+      <div>
+        <li>
+          <p><strong> Missing stickers:</strong> {this.missing.length}</p>
+        </li>
+        <Row>
+        {this.missing.map(i=>{
+          return (<Col xs="6" key={'missing_' + i}>
+              <StickerSm stn={i}></StickerSm>
+            </Col>)
+        })}
+        </Row>
+      </div>
+    )
+    let warning=(<div></div>);
+    let redeemable = (<div></div>);
+    if (!this.missing.length && this.ids.length){
+      if (this.coinToBurn>this.balance) warning=(<p className="text-danger">Your specified amount exceed your <strong>ZCZ</strong> balance</p>);
+      redeemable = (
+        <div className="mt-5">
+          <h2 className="text-success">Great! You have completed the album!</h2>
+          <h3>Claim your <strong>ETH</strong> reward now!</h3>
+          <p>You will simply need to specify an amount of <strong>ZCZ</strong> you would like to burn and burn it!</p>
+          <small><i>Beware... the more <strong>ZCZ</strong> you burn, exponentially greater your <strong>ETH</strong> reward will be</i></small>
+          <InputGroup size="sm">
+            <Input placeholder="Coin to burn..." type="number" step="0.1" onChange={this.computeFinalReward}/>
+            <InputGroupAddon addonType="append">
+              <InputGroupText><strong>ZCZ</strong></InputGroupText>
+            </InputGroupAddon>
+          </InputGroup>
+          {warning}
+          <p><strong>Expected reward: {this.reward._eth.toFixed(5)} ETH</strong></p>
+          <small>Expected tips: {this.reward._tips.toFixed(5)} <strong>ETH</strong></small>
+          <Button className="btn btn-success" onClick={this.redeemAlbumReward} disabled={this.coinToBurn>this.balance}>Redeem and Burn!</Button>
+        </div>
+      );
+      missing = (<div></div>);
+    }
     return (
       <div className="mt-5">
         <Container className="text-left">
@@ -144,17 +201,9 @@ class MyAlbumPage extends React.PureComponent {
                 <li>
                   <p><strong> Your balance:</strong> {parseFloat(this.balance).toFixed(3)} <strong>ZCZ</strong> </p>
                 </li>
-                <li>
-                  <p><strong> Missing stickers:</strong> {this.missing.length}</p>
-                </li>
-                <Row>
-                {this.missing.map(i=>{
-                  return (<Col xs="6" key={'missing_' + i}>
-                      <StickerSm stn={i}></StickerSm>
-                    </Col>)
-                })}
-                </Row>
+                {missing}
               </ul>
+              {redeemable}
             </main>
             </Row>
         </Container>
