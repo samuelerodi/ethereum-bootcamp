@@ -58,10 +58,13 @@ export default class HomePage extends React.PureComponent {
     return (
       <div className="text-center">
         <Header />
+        <h3 >
+          The first decentralized crypto stickers collection!
+        </h3>
         <p className="App-intro">
           Get ready and press play!
         </p>
-        <Button outline color="success" tag={Link} to="/album">Play!</Button> 
+        <Button outline color="success" className="btn-lg" tag={Link} to="/album">Play!</Button>
       </div>
       // <article>
       //   <Helmet>
