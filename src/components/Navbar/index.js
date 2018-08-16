@@ -12,7 +12,11 @@ import {
   // DropdownMenu,
   // DropdownItem
 } from 'reactstrap';
-  import {Link} from 'react-router';
+import {Link} from 'react-router';
+
+import ZtickerZ from '../../instances/ZtickerZ';
+
+import web3 from '../../config/web3';
 
 export default class Example extends React.Component {
   constructor(props) {
@@ -20,8 +24,23 @@ export default class Example extends React.Component {
 
     this.toggle = this.toggle.bind(this);
     this.state = {
-      isOpen: false
+      isOpen: false,
+      isAdmin: false
     };
+    this.web3 = web3;
+    ZtickerZ.deployed()
+    .then((r)=>this.ZtickerZ=r)
+    .then((r)=>this.ZtickerZ.owner())
+    .then(owner=>{
+      return new Promise(function(resolve,reject){
+        this.web3.eth.getAccounts((e,r)=>{
+          if(e)return reject(e);
+          this.account=r[0];
+          if(this.account==owner)this.setState({isAdmin:true})
+          resolve(this.account);
+        })
+      }.bind(this))
+     })
   }
   toggle() {
     this.setState({
@@ -29,6 +48,12 @@ export default class Example extends React.Component {
     });
   }
   render() {
+    let admin;
+    if(this.state.isAdmin) admin=(
+        <NavItem>
+          <NavLink tag={Link} to="/admin">Admin</NavLink>
+        </NavItem>
+      );
     return (
       <div>
         <Navbar color="light" light expand="md">
@@ -45,6 +70,7 @@ export default class Example extends React.Component {
               <NavItem>
                 <NavLink tag={Link} to="/stats">Statistics</NavLink>
               </NavItem>
+              {admin}
               <NavItem>
                 <NavLink tag={Link} to="/about">?</NavLink>
               </NavItem>

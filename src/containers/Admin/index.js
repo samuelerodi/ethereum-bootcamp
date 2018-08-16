@@ -26,24 +26,12 @@ class AdminPage extends React.PureComponent {
    constructor(props, context) {
     super(props);
     this.state={
-      reload:false
+      reload:false,
+      isPaused:false
     };
-    this.stickers={
-        _stn:[],
-        _sId:[],
-        _onSale:[],
-        _onSalePrice:[]
-      };
-    this.orderBook={
-      stickers:[],
-      prices:[],
-      sellers:[]
-    };
-    this.balance=0;
     this.web3=web3;
     this.refresh();
   }
-
   instantiateContracts = () =>{
     if (this.loaded) return Promise.resolve();
     return ZtickerZ.deployed()
@@ -63,21 +51,23 @@ class AdminPage extends React.PureComponent {
      })
     .then(()=>this.loaded=true);
   }
-  reRender=()=>{
-    this.setState({reload:!this.state.reload});
-  }
-
   refresh = ()=>{
     this.instantiateContracts()
-    .then(r=>this.ZtickerZ.getOrderBook())
-    .then(r=>getOrderBook(r))
-    .then(r=>this.orderBook=r)
-    .then(r=>this.ZtickerZ.getStickersDetails(this.orderBook.stickers))
-    .then(r=>getStickersDetails(r))
-    .then(r=>this.stickers=r)
-    .then(r=> this.ZtickyCoinZ.balanceOf(this.account))
-    .then(r=> this.balance=toZCZ(r))
-    .then(r=>this.reRender());
+    .then(r=>this.ZtickerZ.paused())
+    .then(r=>this.setState({isPaused:r}));
+  }
+  toggle = () => {
+    if (this.state.isPaused)
+      return this.ZtickerZ.unpause({
+        from: this.account,
+        gas: 1500000,
+        gasPrice: 4000000000
+      }).then(r=>this.refresh());
+    return this.ZtickerZ.pause({
+      from: this.account,
+      gas: 1500000,
+      gasPrice: 4000000000
+    }).then(r=>this.refresh());
   }
   componentDidMount() { }
   render() {
@@ -85,34 +75,16 @@ class AdminPage extends React.PureComponent {
       <div className="mt-5">
         <Container className="text-left">
           <Row>
-            <aside className="border col-md-9 order-md-1">
-              <h2>The Marketplace</h2>
-              <p>Buy the rarest stickers on sale!</p>
-              <div className="border-top">
-                <Row>
-                  {this.stickers._sId.map((el,idx)=>{
-                    return (<Col xs="3" key={el}>
-                      <MarketSticker
-                                ac={this.ZtickyZtorage}
-                                cc={this.ZtickyCoinZ}
-                                zz={this.ZtickerZ}
-                                account={this.account}
-                                balance={this.balance}
-                                stn={this.stickers._stn[idx]}
-                                stickerId={el}
-                                onSale={this.stickers._onSale[idx]}
-                                price={this.stickers._onSalePrice[idx]}
-                                seller={this.orderBook.sellers[idx]}
-                                refresh={this.refresh}></MarketSticker>
-                    </Col>)
-                  })}
-                </Row>
-              </div>
-            </aside>
-            <main className="col-md-3 order-md-2">
-              <h2>Your ZCZ balance:</h2>
-              <h4>{parseFloat(this.balance).toFixed(3)} <strong>ZCZ</strong></h4>
-            </main>
+          <Col>
+            <h2>Hi Admin!</h2>
+            <div>
+            {this.state.isPaused ?
+              <p>Restart the game!</p> :
+              <p>You can pause the game if you want...</p>
+            }
+            <Button className="btn btn-danger mt-1" onClick={this.toggle}>Toggle</Button>
+            </div>
+            </Col>
           </Row>
         </Container>
       </div>
