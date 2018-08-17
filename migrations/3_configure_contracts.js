@@ -9,8 +9,13 @@ module.exports = function(deployer) {
     .then(r => {cc=r; return ZtickerZ.deployed();})
     .then(r => zz = r)
     .then(r => {
-      ac.changeFrontend(zz.address, {from: web3.eth.accounts[0]});
-      cc.changeFrontend(zz.address, {from: web3.eth.accounts[0]});
-      zz.createAlbum(40, 4, web3.toWei(0.01, 'ether'), {from: web3.eth.accounts[0]});
+      web3.eth.getAccounts((e,r)=>{
+        if(e)return console.error(e);
+        let account=r[0];
+        ac.changeFrontend(zz.address, {from: account});
+        cc.changeFrontend(zz.address, {from: account});
+        zz.createAlbum(40, 4, web3.toWei(0.01, 'ether'), {from: account});
+      })
+
     });
 };
