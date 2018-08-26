@@ -2,7 +2,7 @@ var ZtickyZtorage = artifacts.require("./ZtickyZtorage.sol");
 var ZtickyCoinZ = artifacts.require("./ZtickyCoinZ.sol");
 var ZtickerZ = artifacts.require("ZtickerZ");
 
-var ac,cc,zz;
+var ac,cc,zz, album;
 const N_STICKERS = 100;
 const N_STICKERS_X_PACK = 5;
 const PACK_PRICE = 0.1;
@@ -18,13 +18,16 @@ contract('ZtickerZ', function(accounts) {
 
   it("...should check if available.", function() {
     return zz.albumCount()
-    .then(r=>assert.equal(r,0,'it should contain zero at the moment.'));
+    .then(r=>{
+      album=r.toNumber();
+      assert.equal(r>-1,true,'it should answer correctly.')
+    });
   });
 
   it("...should create  an Album.", function() {
     return zz.createAlbum(N_STICKERS, N_STICKERS_X_PACK, web3.toWei(PACK_PRICE, 'ether'), {from: web3.eth.accounts[0]})
     .then(r=>zz.albumCount())
-    .then(r=>assert.equal(r.toNumber(),1,'it should contain one at the moment.'));
+    .then(r=>assert.equal(r.toNumber(),album+1,'it should contain one more at the moment.'));
   });
   it("...should modify the tips Jar.", function() {
     return zz.changeTipsAddress(web3.eth.accounts[9], {from: web3.eth.accounts[0]})
@@ -32,11 +35,11 @@ contract('ZtickerZ', function(accounts) {
     .then(r=>assert.equal(r,web3.eth.accounts[9],'it should have changed the tips Jar.'));
   });
   it("...should compute initial coin reward.", function() {
-    return zz.computeCoinReward(0, 0, {from: web3.eth.accounts[5]})
+    return zz.computeCoinReward(album, 0, {from: web3.eth.accounts[5]})
     .then(r=>assert.equal(r.toNumber(),web3.toWei(1,'ether')*1000*(PACK_PRICE/N_STICKERS_X_PACK),'it should equal 1000.'));
   });
   it("...should unwrap a Sticker.", function() {
-    return zz.unwrapStickerPack(0, {from: web3.eth.accounts[5], value: web3.toWei(PACK_PRICE, 'ether')})
+    return zz.unwrapStickerPack(album, {from: web3.eth.accounts[5], value: web3.toWei(PACK_PRICE, 'ether')})
     .then(r=>cc.balanceOf(web3.eth.accounts[5]))
     .then(r=>assert.equal(r>0,true,'it should have minted some token.'))
     .then(r=>ac.getStickersOf(web3.eth.accounts[5]))
@@ -48,13 +51,13 @@ contract('ZtickerZ', function(accounts) {
   });
   it("...should complete an Album.", function() {
     return zz.createAlbum(1, 10, web3.toWei(PACK_PRICE, 'ether'), {from: web3.eth.accounts[0]})
-    .then(r=>zz.unwrapStickerPack(1, {from: web3.eth.accounts[6], value: web3.toWei(PACK_PRICE, 'ether')}))
-    .then(r=>zz.isAlbumComplete(web3.eth.accounts[6], 1))
+    .then(r=>zz.unwrapStickerPack(album+1, {from: web3.eth.accounts[6], value: web3.toWei(PACK_PRICE, 'ether')}))
+    .then(r=>zz.isAlbumComplete(web3.eth.accounts[6], album+1))
     .then(r=>assert.equal(r,true,'it should have completed the album.'));
   });
   it("...should compute redeemable ETH Reward.", function() {
     return cc.balanceOf(web3.eth.accounts[6])
-    .then(r=>zz.computeAlbumReward(1, r.toNumber()))
+    .then(r=>zz.computeAlbumReward(album+1, r.toNumber()))
     .then(r=>{
       var reward = r[0].toNumber();
       var tip = r[1].toNumber();
@@ -70,12 +73,12 @@ contract('ZtickerZ', function(accounts) {
     var reward,tip, coinBalance;
     return cc.balanceOf(web3.eth.accounts[6])
     .then(r=>coinBalance = r.toNumber())
-    .then(r=>zz.computeAlbumReward(1, coinBalance))
+    .then(r=>zz.computeAlbumReward(album+1, coinBalance))
     .then(r=>{
       reward = r[0].toNumber();
       tip = r[1].toNumber();
     })
-    .then(r=>zz.redeemReward(1, coinBalance, {from: web3.eth.accounts[6]}))
+    .then(r=>zz.redeemReward(album+1, coinBalance, {from: web3.eth.accounts[6]}))
     .then(r=>cc.balanceOf(web3.eth.accounts[6]))
     .then(r=>{
       var newJarBalance = web3.eth.getBalance(web3.eth.accounts[9]).toNumber();
