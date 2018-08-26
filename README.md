@@ -6,7 +6,10 @@ ZtickerZ is a basic Ethereum game that allows to simulate a stickers collection 
 ## Addresses
 Interact with this contract on Ethereum!
 
-URL:  
+URL:  http://ztickerz.samuelerodi.info
+
+IPFS: https://ipfs.io/ipfs/QmXKa7czE4VaXRWzBHYwyLW1Lhdd2Y8fZesq7W1zddcrZF/
+  or: http://ztickerzonipfs.samuelerodi.info
 
 Rinkeby:
   Migrations:     0x0c2af2fe2228d5bd7f92f30305ca52983e48017b
@@ -16,23 +19,25 @@ Rinkeby:
 
 
 IPFS
-added QmXPHrpfgdejP4pnNbn6MZhsM7zs2LcsEa3ywpdbtsJ6Sc ztickerz/asset-manifest.json
+added QmYV91FZDPT9oE8Q4ZJ4zjSdcVwbGhtiDbVU1QAT5zGbZX ztickerz/asset-manifest.json
 added QmcFc6EPhavNSfdjG8byaxxV6KtHZvnDwYXLHvyJQPp3uN ztickerz/favicon.ico
-added QmPCsbfZjJ48SCmLJP3UURwq2CimX2w89QEPrhFV3d7rSX ztickerz/index.html
+added QmcLy992N1jYZK8pMStsKTSEDuQAZfMo3ENBiFXxjpSHoF ztickerz/index.html
 added QmYCxho5joBMRmvFMxT34dJLTA1DhpmEp89MSDwRh5Gq23 ztickerz/manifest.json
-added QmcAdM7xaLGpgnxUJHQD7CJEqjYJkiNpi5ufpLU3xqyVva ztickerz/service-worker.js
+added QmQodfGzZgVMGU1JQGi52FwsC83UKm4sq7jSZ4WhmQBdun ztickerz/service-worker.js
 added QmNjbDBEQwV4uiTMAKeaWbyyGdaagRKbCSB1pnFXD8rLqu ztickerz/static/css/main.6ec09282.css
 added QmQRJefQUXcXioPHKCLBe1A1u7zXwSbkXquDumUTdnNKyZ ztickerz/static/css/main.6ec09282.css.map
 added QmSVFAqf5d652WW4tJT7HM1XqHF1cFvdGXQ7D91NEfX8MX ztickerz/static/js/main.43d0b8a4.js
 added QmZ8qFMxkygg9Kev8wopJmRddyspsy73p6B3oD8BjGzfSi ztickerz/static/js/main.43d0b8a4.js.map
+added QmammqDYnWVPWg4R6Mxd74K8VsCW8F6QWLynXB6KZHJDUB ztickerz/static/js/main.5c9c00a1.js
+added QmeZh7DxvoF87pdR1T7p8a1fhfSCMYnHGPsxvWyPWAHdyy ztickerz/static/js/main.5c9c00a1.js.map
 added QmdnyjkA18VNfEUThjCpuiUUz2pbqmCe1pYCyXuzizRHft ztickerz/static/media/2.114a63ba.png
 added QmcsEACGaBpn2kqb496oaSyQ646PRYZx96GWnCKCpwJDYh ztickerz/static/media/35.17097e01.png
 added QmNm8gFTprb7fpbSskM7Lc4XWdBXkXJrjXzmd2nFr596V3 ztickerz/static/media/logo.f989fd27.png
 added QmXV3S9m1UUR9j33DmDZYUVTACwpWJ8eFQd1uwLrzzsbz4 ztickerz/static/css
-added Qmb3xfNFFDLiEtPSH26Hes1RyQzCPsQW9qwaqsDHcNyL8x ztickerz/static/js
+added Qmcy71PUB8GiANitAFVG5doJazGf4SMZnXQiZQTXASb6QN ztickerz/static/js
 added QmetRLwQ94WLg9ssZ5TcfHbL1ZEkatVY5uGnAdy656KbXs ztickerz/static/media
-added QmVGrPfcgiZX4sCyUo5bGuvSY4X4EjDs5NFjjZfd8UqSLk ztickerz/static
-added QmZDLp5NCL4xpm2JMFejYcptzJPUqqWKRNKmHWAzEGpwuQ ztickerz
+added QmTPbRSaKESyGujtYJrgbv7yipDH5m7XCQ8veF3NDnWuq6 ztickerz/static
+added QmXKa7czE4VaXRWzBHYwyLW1Lhdd2Y8fZesq7W1zddcrZF ztickerz
 
 
 
@@ -95,7 +100,7 @@ Running using Vagrant is recommended.
     ```
 3. Create the app build with
     ```javascript
-    npm build
+    npm run build
     ```
 
 ### Optional hack for better usability
