@@ -1,7 +1,9 @@
 # ZtickerZ
 > This is an Ethereum Decentralized Game built as a final project of the ConsenSys's Ethereum Developer Program.
 
-ZtickerZ is a basic Ethereum game that allows to simulate a stickers collection on a decentralized basis onto an Ethereum Smart Contract.
+ZtickerZ is a basic Ethereum game that allows to collect stickers onto an Ethereum Smart Contract.
+This game leverages the power of an ERC20 token to incentivize gaming and it uses an ERC721 Non-Fungible Token as asset collection.
+All you have to do is buy some stickers packs, trade the stickers and get the final reward upon album completion. Enjoy!
 
 ## Addresses
 Interact with this contract on Ethereum!
@@ -12,33 +14,10 @@ IPFS: https://ipfs.io/ipfs/QmXKa7czE4VaXRWzBHYwyLW1Lhdd2Y8fZesq7W1zddcrZF/
   or: http://ztickerzonipfs.samuelerodi.info
 
 Rinkeby:
-  Migrations:     0x0c2af2fe2228d5bd7f92f30305ca52983e48017b
-  ZtickyZtorage:  0x36e4c18184e85cf52ca18067c6321683d593d090
-  ZtickyCoinZ:    0xabed85c03fe5fb13e05959f333864071c5175050
-  ZtickerZ:       0xba8d6172da1a00cf052194cb22fa465a0fcdd942
-
-
-IPFS
-added QmYV91FZDPT9oE8Q4ZJ4zjSdcVwbGhtiDbVU1QAT5zGbZX ztickerz/asset-manifest.json
-added QmcFc6EPhavNSfdjG8byaxxV6KtHZvnDwYXLHvyJQPp3uN ztickerz/favicon.ico
-added QmcLy992N1jYZK8pMStsKTSEDuQAZfMo3ENBiFXxjpSHoF ztickerz/index.html
-added QmYCxho5joBMRmvFMxT34dJLTA1DhpmEp89MSDwRh5Gq23 ztickerz/manifest.json
-added QmQodfGzZgVMGU1JQGi52FwsC83UKm4sq7jSZ4WhmQBdun ztickerz/service-worker.js
-added QmNjbDBEQwV4uiTMAKeaWbyyGdaagRKbCSB1pnFXD8rLqu ztickerz/static/css/main.6ec09282.css
-added QmQRJefQUXcXioPHKCLBe1A1u7zXwSbkXquDumUTdnNKyZ ztickerz/static/css/main.6ec09282.css.map
-added QmSVFAqf5d652WW4tJT7HM1XqHF1cFvdGXQ7D91NEfX8MX ztickerz/static/js/main.43d0b8a4.js
-added QmZ8qFMxkygg9Kev8wopJmRddyspsy73p6B3oD8BjGzfSi ztickerz/static/js/main.43d0b8a4.js.map
-added QmammqDYnWVPWg4R6Mxd74K8VsCW8F6QWLynXB6KZHJDUB ztickerz/static/js/main.5c9c00a1.js
-added QmeZh7DxvoF87pdR1T7p8a1fhfSCMYnHGPsxvWyPWAHdyy ztickerz/static/js/main.5c9c00a1.js.map
-added QmdnyjkA18VNfEUThjCpuiUUz2pbqmCe1pYCyXuzizRHft ztickerz/static/media/2.114a63ba.png
-added QmcsEACGaBpn2kqb496oaSyQ646PRYZx96GWnCKCpwJDYh ztickerz/static/media/35.17097e01.png
-added QmNm8gFTprb7fpbSskM7Lc4XWdBXkXJrjXzmd2nFr596V3 ztickerz/static/media/logo.f989fd27.png
-added QmXV3S9m1UUR9j33DmDZYUVTACwpWJ8eFQd1uwLrzzsbz4 ztickerz/static/css
-added Qmcy71PUB8GiANitAFVG5doJazGf4SMZnXQiZQTXASb6QN ztickerz/static/js
-added QmetRLwQ94WLg9ssZ5TcfHbL1ZEkatVY5uGnAdy656KbXs ztickerz/static/media
-added QmTPbRSaKESyGujtYJrgbv7yipDH5m7XCQ8veF3NDnWuq6 ztickerz/static
-added QmXKa7czE4VaXRWzBHYwyLW1Lhdd2Y8fZesq7W1zddcrZF ztickerz
-
+  Migrations:     <a href="https://rinkeby.etherscan.io/address/0x0c2af2fe2228d5bd7f92f30305ca52983e48017b"> 0x0c2af2fe2228d5bd7f92f30305ca52983e48017b</a>
+  ZtickyZtorage:  <a href="https://rinkeby.etherscan.io/address/0x36e4c18184e85cf52ca18067c6321683d593d090"> 0x36e4c18184e85cf52ca18067c6321683d593d090</a>
+  ZtickyCoinZ:    <a href="https://rinkeby.etherscan.io/address/0xabed85c03fe5fb13e05959f333864071c5175050"> 0xabed85c03fe5fb13e05959f333864071c5175050</a>
+  ZtickerZ:       <a href="https://rinkeby.etherscan.io/address/0xba8d6172da1a00cf052194cb22fa465a0fcdd942"> 0xba8d6172da1a00cf052194cb22fa465a0fcdd942</a>
 
 
 ## GOAL
@@ -67,7 +46,7 @@ Running using Vagrant is recommended.
 
 ### Required step
 
-1. Rename the file secret-template.js into secret.js and populate it using your Infura credentials and Mnemonic phrases.
+1. Rename the file secret-template.js into secret.js and populate it using your Infura credentials and Mnemonic phrases for truffle console.
 
 ## Run using Vagrant
 1. Make sure to have virtualbox and vagrant installed
@@ -77,7 +56,7 @@ Running using Vagrant is recommended.
     vagrant up
     ```
     It will automatically deploy a virtual environment running all the provisioning scripts under vagrant-xxx.ssh and setup a local Ethereum node with ganache-cli and migrate all the needed contracts.
-    In case it is the first time launching 'vagrant up' make sure to have a good and neutral internet connections or you might need to manually reinstall the needed tools and dependencies as described in the provisioning scripts
+    Make sure to have a good and neutral internet connections since Vagrant use it to download the required elements or you might need to reinstall the needed tools and dependencies as described in the provisioning scripts
 
 3. SSH to vm with
     ```javascript
@@ -103,7 +82,7 @@ Running using Vagrant is recommended.
     npm run build
     ```
 
-### Optional hack for better usability
+### Optional hack for development usability
 1. Using webpack in a Vagrant environment is a pain in the neck as it does not auto reload the webpages in case of modification during development.
 To make webpack live reload working properly within vagrant:
 Edit:
@@ -129,22 +108,26 @@ This appears three times.
 
 
 ## Classical installation
-1. Install Truffle and Ganache CLI globally. If you prefer, the graphical version of Ganache works as well!
+
+1. Make sure to have Node version 8.11 and Python 2.7 installed
+
+2. Install Truffle and Ganache CLI globally. If you prefer, the graphical version of Ganache works as well!
     ```javascript
     npm install -g truffle
     npm install -g ganache-cli
+    npm install -g create-react-app
     ```
 
-3. Run the development blockchain, we recommend passing in a blocktime. Otherwise, its difficult to track things like loading indicators because Ganache will mine instantly.
+3. Run the development blockchain, recommended passing in a blocktime. Otherwise, its difficult to track things like loading indicators because Ganache will mine instantly.
     ```javascript
     // 3 second blocktime.
     ganache-cli -b 3
     ```
 
-4. Compile and migrate the smart contracts. Note inside the development console we don't preface commands with `truffle`.
+4. Compile and migrate the smart contracts. Note inside the truffle console we don't preface commands with `truffle`.
     ```javascript
-    compile
-    migrate
+    truffle compile
+    truffle migrate
     ```
 
 5. Run the webpack server for front-end hot reloading (outside the development console). Smart contract changes must be manually recompiled and migrated.
@@ -153,22 +136,19 @@ This appears three times.
     npm start
     ```
 
-6. Truffle can run tests written in Solidity or JavaScript against your smart contracts. Note the command varies slightly if you're in or outside of the development console.
+6. Run tests against your smart contracts. Note the command varies slightly if you're in or outside of the development console.
     ```javascript
-    // If inside the development console.
-    test
-
-    // If outside the development console..
     truffle test
     ```
 
-7. Jest is included for testing React components. Compile your contracts before running Jest, or you may receive some file not found errors.
-    ```javascript
-    // Run Jest outside of the development console for front-end component tests.
-    npm run test
-    ```
 
-8. To build the application for production, use the build command. A production build will be in the build_webpack folder.
+7. To build the application for production, use the build command. A production build will be in the build folder.
     ```javascript
     npm run build
     ```
+
+
+## Further details for ConsenSys development Program:
+  User Stories :
+  Avoiding Common Attacks :
+  Design Pattern Decisions :
