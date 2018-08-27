@@ -13,7 +13,7 @@ http://ztickerz.samuelerodi.info
 
 ### IPFS
 - Gateaway: https://ipfs.io/ipfs/QmXKa7czE4VaXRWzBHYwyLW1Lhdd2Y8fZesq7W1zddcrZF/
--       or: http://ztickerzonipfs.samuelerodi.info
+- or: http://ztickerzonipfs.samuelerodi.info
 
 ### Rinkeby:
 - Migrations:     <a href="https://rinkeby.etherscan.io/address/0x0c2af2fe2228d5bd7f92f30305ca52983e48017b"> 0x0c2af2fe2228d5bd7f92f30305ca52983e48017b</a>
