@@ -8,10 +8,10 @@ IPFS: https://ipfs.io/ipfs/QmXKa7czE4VaXRWzBHYwyLW1Lhdd2Y8fZesq7W1zddcrZF/
   or: http://ztickerzonipfs.samuelerodi.info
 
 Rinkeby:
-0.  Migrations:     0x0c2af2fe2228d5bd7f92f30305ca52983e48017b</a>
-1.  ZtickyZtorage:  0x36e4c18184e85cf52ca18067c6321683d593d090</a>
-2.  ZtickyCoinZ:    0xabed85c03fe5fb13e05959f333864071c5175050</a>
-3.  ZtickerZ:       0xba8d6172da1a00cf052194cb22fa465a0fcdd942</a>
+0.  Migrations:     0x0c2af2fe2228d5bd7f92f30305ca52983e48017b
+1.  ZtickyZtorage:  0x36e4c18184e85cf52ca18067c6321683d593d090
+2.  ZtickyCoinZ:    0xabed85c03fe5fb13e05959f333864071c5175050
+3.  ZtickerZ:       0xba8d6172da1a00cf052194cb22fa465a0fcdd942
 
 
 Deployed files on IPFS:

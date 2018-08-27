@@ -8,16 +8,18 @@ All you have to do is buy some stickers packs, trade the stickers and get the fi
 ## Addresses
 Interact with this contract on Ethereum!
 
-URL:  http://ztickerz.samuelerodi.info
+### URL  
+http://ztickerz.samuelerodi.info
 
-IPFS: https://ipfs.io/ipfs/QmXKa7czE4VaXRWzBHYwyLW1Lhdd2Y8fZesq7W1zddcrZF/
-  or: http://ztickerzonipfs.samuelerodi.info
+### IPFS
+- Gateaway: https://ipfs.io/ipfs/QmXKa7czE4VaXRWzBHYwyLW1Lhdd2Y8fZesq7W1zddcrZF/
+-       or: http://ztickerzonipfs.samuelerodi.info
 
-Rinkeby:
-  Migrations:     <a href="https://rinkeby.etherscan.io/address/0x0c2af2fe2228d5bd7f92f30305ca52983e48017b"> 0x0c2af2fe2228d5bd7f92f30305ca52983e48017b</a>
-  ZtickyZtorage:  <a href="https://rinkeby.etherscan.io/address/0x36e4c18184e85cf52ca18067c6321683d593d090"> 0x36e4c18184e85cf52ca18067c6321683d593d090</a>
-  ZtickyCoinZ:    <a href="https://rinkeby.etherscan.io/address/0xabed85c03fe5fb13e05959f333864071c5175050"> 0xabed85c03fe5fb13e05959f333864071c5175050</a>
-  ZtickerZ:       <a href="https://rinkeby.etherscan.io/address/0xba8d6172da1a00cf052194cb22fa465a0fcdd942"> 0xba8d6172da1a00cf052194cb22fa465a0fcdd942</a>
+### Rinkeby:
+- Migrations:     <a href="https://rinkeby.etherscan.io/address/0x0c2af2fe2228d5bd7f92f30305ca52983e48017b"> 0x0c2af2fe2228d5bd7f92f30305ca52983e48017b</a>
+- ZtickyZtorage:  <a href="https://rinkeby.etherscan.io/address/0x36e4c18184e85cf52ca18067c6321683d593d090"> 0x36e4c18184e85cf52ca18067c6321683d593d090</a>
+- ZtickyCoinZ:    <a href="https://rinkeby.etherscan.io/address/0xabed85c03fe5fb13e05959f333864071c5175050"> 0xabed85c03fe5fb13e05959f333864071c5175050</a>
+- ZtickerZ:       <a href="https://rinkeby.etherscan.io/address/0xba8d6172da1a00cf052194cb22fa465a0fcdd942"> 0xba8d6172da1a00cf052194cb22fa465a0fcdd942</a>
 
 
 ## GOAL
@@ -36,7 +38,7 @@ The game is quite simple in reality:
 - Specify an amount of ZCZ you would like to burn in change of your ETH reward. The quantity of ZCZ you burn increases exponentially the amount of ETH you receive.
 
 
-Feel free to contribute or get in touch at samuele.rodi@gmail.com
+Feel free to contribute or get in touch with samuele.rodi@gmail.com
 A lot of game features still in roadmap...
 
 
@@ -83,28 +85,28 @@ Running using Vagrant is recommended.
     ```
 
 ### Optional hack for development usability
-1. Using webpack in a Vagrant environment is a pain in the neck as it does not auto reload the webpages in case of modification during development.
-To make webpack live reload working properly within vagrant:
-Edit:
-vi node_modules/react-scripts/config/webpackDevServer.config.js
+1.  Using webpack in a Vagrant environment is a pain in the neck as it does not auto reload the webpages in case of modification during development.
+    To make webpack live reload working properly within vagrant:
+    Edit:
+    vi node_modules/react-scripts/config/webpackDevServer.config.js
 
-Add the option:
-```javascript
-watchOptions: {
-  poll: true
-}
-```
+    Add the option:
+    ```javascript
+    watchOptions: {
+      poll: true
+    }
+    ```
 
-2. By default the React App build folder will use /build as default build directory, eventually overwriting the compiled contracts.
-To change the build folder:
-Edit:
-vi node_modules/react-scripts/config/paths.js
+2.  By default the React App build folder will use /build as default build directory, eventually overwriting the compiled contracts.
+    To change the build folder:
+    Edit:
+    vi node_modules/react-scripts/config/paths.js
 
-Modify any reference to the build directory by adding your favourite path location:
-```javascript
-  appBuild: resolveApp('build'),  
-```
-This appears three times.
+    Modify any reference to the build directory by adding your favourite path location:
+    ```javascript
+      appBuild: resolveApp('build'),  
+    ```
+    This appears three times.
 
 
 ## Classical installation
@@ -149,6 +151,6 @@ This appears three times.
 
 
 ## Further details for ConsenSys development Program:
-  User Stories :
-  Avoiding Common Attacks :
-  Design Pattern Decisions :
+- User Stories :
+- Avoiding Common Attacks :
+- Design Pattern Decisions :
